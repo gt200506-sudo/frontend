@@ -20,7 +20,7 @@ router.get("/detections", async (req, res) => {
   let filtered = allItems;
   if (query.contentId) filtered = filtered.filter((d) => d.contentId === query.contentId);
   if (query.status) filtered = filtered.filter((d) => d.status === query.status);
-  if (query.minSimilarity != null) filtered = filtered.filter((d) => d.similarityScore >= query.minSimilarity!);
+  if (query.minSimilarity != null) filtered = filtered.filter((d) => (d.similarityScore as number) >= query.minSimilarity!);
 
   const items = filtered.slice(offset, offset + limit).map((d) => ({
     id: d.uuid,
@@ -30,13 +30,13 @@ router.get("/detections", async (req, res) => {
     detectionType: d.detectionType,
     sourceUrl: d.sourceUrl,
     sourcePlatform: d.sourcePlatform,
-    detectedAt: d.detectedAt.toISOString(),
+    detectedAt: (d.detectedAt instanceof Date) ? d.detectedAt.toISOString() : new Date(d.detectedAt as any).toISOString(),
     status: d.status,
     excerpt: d.excerpt,
     aiAnalysis: d.aiAnalysis ?? null,
   }));
 
-  res.json({ items, total: filtered.length, page, limit });
+  return res.json({ items, total: filtered.length, page, limit });
 });
 
 router.get("/detections/:id", async (req, res) => {
@@ -44,7 +44,7 @@ router.get("/detections/:id", async (req, res) => {
   const [item] = await db.select().from(detectionTable).where(eq(detectionTable.uuid, id));
   if (!item) return res.status(404).json({ error: "Not found" });
 
-  res.json({
+  return res.json({
     id: item.uuid,
     contentId: item.contentId,
     contentTitle: item.contentTitle,
@@ -52,7 +52,7 @@ router.get("/detections/:id", async (req, res) => {
     detectionType: item.detectionType,
     sourceUrl: item.sourceUrl,
     sourcePlatform: item.sourcePlatform,
-    detectedAt: item.detectedAt.toISOString(),
+    detectedAt: (item.detectedAt instanceof Date) ? item.detectedAt.toISOString() : new Date(item.detectedAt as any).toISOString(),
     status: item.status,
     excerpt: item.excerpt,
     aiAnalysis: item.aiAnalysis ?? null,
@@ -71,7 +71,7 @@ router.patch("/detections/:id", async (req, res) => {
 
   if (!updated) return res.status(404).json({ error: "Not found" });
 
-  res.json({
+  return res.json({
     id: updated.uuid,
     contentId: updated.contentId,
     contentTitle: updated.contentTitle,
@@ -79,7 +79,7 @@ router.patch("/detections/:id", async (req, res) => {
     detectionType: updated.detectionType,
     sourceUrl: updated.sourceUrl,
     sourcePlatform: updated.sourcePlatform,
-    detectedAt: updated.detectedAt.toISOString(),
+    detectedAt: (updated.detectedAt instanceof Date) ? updated.detectedAt.toISOString() : new Date(updated.detectedAt as any).toISOString(),
     status: updated.status,
     excerpt: updated.excerpt,
     aiAnalysis: updated.aiAnalysis ?? null,
