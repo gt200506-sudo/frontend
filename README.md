@@ -96,4 +96,3 @@ To build all workspaces:
 
 ```bash
 npm run build
-```
