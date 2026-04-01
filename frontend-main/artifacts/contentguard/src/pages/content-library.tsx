@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Plus, FileText, Image as ImageIcon, BookOpen, Shield, File, AlignLeft } from "lucide-react";
+import { Search, Plus, FileText, Image as ImageIcon, BookOpen, Shield, File, AlignLeft, Video } from "lucide-react";
 import { Link } from "wouter";
 import { format } from "date-fns";
 

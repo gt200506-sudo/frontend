@@ -24,7 +24,7 @@ router.get("/alerts", async (req, res) => {
     contentId: a.contentId ?? null,
     detectionId: a.detectionId ?? null,
     read: a.read,
-    createdAt: a.createdAt.toISOString(),
+    createdAt: (a.createdAt instanceof Date) ? a.createdAt.toISOString() : new Date(a.createdAt as any).toISOString(),
     severity: a.severity,
   }));
 
@@ -41,7 +41,7 @@ router.post("/alerts/:id/read", async (req, res) => {
 
   if (!updated) return res.status(404).json({ error: "Not found" });
 
-  res.json({
+  return res.json({
     id: updated.uuid,
     type: updated.type,
     title: updated.title,
@@ -49,7 +49,7 @@ router.post("/alerts/:id/read", async (req, res) => {
     contentId: updated.contentId ?? null,
     detectionId: updated.detectionId ?? null,
     read: updated.read,
-    createdAt: updated.createdAt.toISOString(),
+    createdAt: (updated.createdAt instanceof Date) ? updated.createdAt.toISOString() : new Date(updated.createdAt as any).toISOString(),
     severity: updated.severity,
   });
 });

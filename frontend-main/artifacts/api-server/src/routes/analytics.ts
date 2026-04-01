@@ -14,18 +14,18 @@ router.get("/analytics/overview", async (_req, res) => {
   const confirmedInfringements = detections.filter((d) => d.status === "confirmed").length;
   const pendingReview = detections.filter((d) => d.status === "pending").length;
   const avgSimilarityScore = detections.length
-    ? detections.reduce((sum, d) => sum + d.similarityScore, 0) / detections.length
+    ? (detections as any[]).reduce((sum, d) => sum + (d.similarityScore as number), 0) / detections.length
     : 0;
   const blockchainRegistered = contents.filter((c) => c.blockchainTxHash != null).length;
 
   const contentDetectionMap = new Map<string, { contentId: string; title: string; detections: number; scores: number[] }>();
   for (const d of detections) {
-    if (!contentDetectionMap.has(d.contentId)) {
-      contentDetectionMap.set(d.contentId, { contentId: d.contentId, title: d.contentTitle, detections: 0, scores: [] });
+    if (!contentDetectionMap.has(d.contentId as string)) {
+      contentDetectionMap.set(d.contentId as string, { contentId: d.contentId as string, title: d.contentTitle as string, detections: 0, scores: [] });
     }
-    const entry = contentDetectionMap.get(d.contentId)!;
+    const entry = contentDetectionMap.get(d.contentId as string)!;
     entry.detections++;
-    entry.scores.push(d.similarityScore);
+    entry.scores.push(d.similarityScore as number);
   }
 
   const mostAffectedContent = Array.from(contentDetectionMap.values())
@@ -40,7 +40,8 @@ router.get("/analytics/overview", async (_req, res) => {
 
   const platformMap = new Map<string, number>();
   for (const d of detections) {
-    platformMap.set(d.sourcePlatform, (platformMap.get(d.sourcePlatform) ?? 0) + 1);
+    const platform = d.sourcePlatform as string;
+    platformMap.set(platform, (platformMap.get(platform) ?? 0) + 1);
   }
   const platformBreakdown = Array.from(platformMap.entries()).map(([platform, count]) => ({
     platform,
@@ -80,11 +81,11 @@ router.get("/analytics/propagation", async (req, res) => {
     ...filtered.slice(0, 20).map((d) => ({
       id: d.uuid,
       label: d.sourcePlatform,
-      type: d.similarityScore > 0.9 ? ("copy" as const) : ("partial" as const),
-      platform: d.sourcePlatform,
-      url: d.sourceUrl,
-      similarityScore: d.similarityScore,
-      detectedAt: d.detectedAt.toISOString(),
+      type: (d.similarityScore as any) > 0.9 ? ("copy" as const) : ("partial" as const),
+      platform: d.sourcePlatform as string,
+      url: d.sourceUrl as string,
+      similarityScore: d.similarityScore as number,
+      detectedAt: (d.detectedAt instanceof Date) ? d.detectedAt.toISOString() : new Date(d.detectedAt as any).toISOString(),
     })),
   ];
 
@@ -110,7 +111,8 @@ router.get("/analytics/trends", async (_req, res) => {
   }
 
   for (const d of detections) {
-    const key = d.detectedAt.toISOString().split("T")[0];
+    const detectedAt = (d.detectedAt instanceof Date) ? d.detectedAt : new Date(d.detectedAt as any);
+    const key = detectedAt.toISOString().split("T")[0];
     if (dailyMap.has(key)) {
       const entry = dailyMap.get(key)!;
       entry.detections++;
@@ -123,7 +125,8 @@ router.get("/analytics/trends", async (_req, res) => {
 
   const typeMap = new Map<string, number>();
   for (const d of detections) {
-    typeMap.set(d.detectionType, (typeMap.get(d.detectionType) ?? 0) + 1);
+    const type = d.detectionType as string;
+    typeMap.set(type, (typeMap.get(type) ?? 0) + 1);
   }
   const byType = Array.from(typeMap.entries()).map(([type, count]) => ({ type, count }));
 

@@ -23,11 +23,12 @@ class ColumnRef {
 /** Create a proxy-based table object: accessing any property returns a ColumnRef. */
 function createTableProxy(name: string): Record<string, ColumnRef> {
   return new Proxy(
-    {} as Record<string, ColumnRef>,
+    { _name: name } as any,
     {
-      get(_target, prop) {
+      get(target, prop) {
+        if (prop === "_name") return target._name;
         if (typeof prop === "string") return new ColumnRef(prop);
-        return undefined;
+        return (target as any)[prop];
       },
     },
   );
@@ -108,8 +109,10 @@ export function eq(col: ColumnRef | any, value: unknown): FilterFn {
 export function desc(col: ColumnRef | any): SortFn {
   const field = col instanceof ColumnRef ? col._field : String(col);
   const fn = ((a: Row, b: Row) => {
-    const va = a[field] as any;
-    const vb = b[field] as any;
+    let va = a[field] as any;
+    let vb = b[field] as any;
+    if (typeof va === "string" && !isNaN(Date.parse(va))) va = new Date(va);
+    if (typeof vb === "string" && !isNaN(Date.parse(vb))) vb = new Date(vb);
     if (va instanceof Date && vb instanceof Date) return vb.getTime() - va.getTime();
     if (va > vb) return -1;
     if (va < vb) return 1;
@@ -123,8 +126,10 @@ export function desc(col: ColumnRef | any): SortFn {
 export function asc(col: ColumnRef | any): SortFn {
   const field = col instanceof ColumnRef ? col._field : String(col);
   const fn = ((a: Row, b: Row) => {
-    const va = a[field] as any;
-    const vb = b[field] as any;
+    let va = a[field] as any;
+    let vb = b[field] as any;
+    if (typeof va === "string" && !isNaN(Date.parse(va))) va = new Date(va);
+    if (typeof vb === "string" && !isNaN(Date.parse(vb))) vb = new Date(vb);
     if (va instanceof Date && vb instanceof Date) return va.getTime() - vb.getTime();
     if (va < vb) return -1;
     if (va > vb) return 1;
@@ -214,6 +219,7 @@ class InsertBuilder {
 
   values(data: Row | Row[]): this {
     const items = Array.isArray(data) ? data : [data];
+    const tableName = (this._table as any)._name || "";
     this._rows = items.map((item) => {
       const row = { ...item };
       if (row.id === undefined) {
@@ -222,9 +228,23 @@ class InsertBuilder {
           ? Math.max(...existing.map((r) => Number(r.id) || 0)) + 1
           : 1;
       }
-      if (row.registeredAt === undefined) row.registeredAt = new Date();
-      if (row.detectedAt === undefined && "detectedAt" in row) row.detectedAt = new Date();
-      if (row.createdAt === undefined && "createdAt" in row) row.createdAt = new Date();
+      
+      // Smart default timestamps based on table name or property presence
+      if (row.registeredAt === undefined && (tableName === "content" || tableName === "blockchain_record")) {
+        row.registeredAt = new Date();
+      }
+      if (row.detectedAt === undefined && tableName === "detection") {
+        row.detectedAt = new Date();
+      }
+      if (row.createdAt === undefined && tableName === "alert") {
+        row.createdAt = new Date();
+      }
+      
+      // Fallback: If no timestamp was set but it's expected by common schemas
+      if (row.uuid && row.registeredAt === undefined && row.detectedAt === undefined && row.createdAt === undefined) {
+          row.registeredAt = new Date();
+      }
+
       return row;
     });
     return this;
@@ -355,7 +375,10 @@ const EXCERPTS = [
   "We propose a multi-modal content verification system that combines OCR, NLP, and computer vision techniques for comprehensive plagiarism detection...",
 ];
 
+let isSeeded = false;
 function seedDatabase() {
+  if (isSeeded) return;
+  isSeeded = true;
   const contentItems: Row[] = [
     { id: 1, uuid: randomUUID(), title: "Deep Learning for Natural Language Processing: A Comprehensive Survey", type: "paper", description: "A systematic review of deep learning architectures applied to NLP tasks", contentHash: "sha256:a8f3c2d1e9b5f7a4c6d8e2f1b3a5c7d9e1f3a5c7", author: "Dr. Sarah Chen", organization: "MIT CSAIL", similarityThreshold: 0.88, status: "active", detectionCount: 14, fileSize: null, blockchainTxHash: null, ipfsHash: null, registeredAt: new Date() },
     { id: 2, uuid: randomUUID(), title: "Advanced Machine Learning Course - Module 5: Neural Networks", type: "course", description: "Video lecture series on neural network architectures and training", contentHash: "sha256:b9e4d3c2f8a6b5c4d7e3f2a1c5b7d9f1e3a7c9", author: "Prof. James Wright", organization: "Stanford Online", similarityThreshold: 0.82, status: "monitoring", detectionCount: 8, fileSize: null, blockchainTxHash: null, ipfsHash: null, registeredAt: new Date() },

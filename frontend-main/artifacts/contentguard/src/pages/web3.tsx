@@ -50,7 +50,10 @@ export default function Web3() {
   const { mutate: register, isPending: isRegistering, data: regResult } = useRegisterOnBlockchain();
 
   const { data: verifyResult, isLoading: isVerifying } = useVerifyOwnership(triggerVerify, {
-    query: { enabled: !!triggerVerify }
+    query: {
+      enabled: !!triggerVerify,
+      queryKey: ["/api/web3/verify", triggerVerify]
+    }
   });
 
   const handleRegister = (e: React.FormEvent) => {
@@ -219,7 +222,7 @@ export default function Web3() {
                         <p className="text-xs text-muted-foreground mb-1">Owner Wallet</p>
                         <div className="flex items-center gap-2 bg-black/20 rounded-lg px-3 py-2 border border-border/30">
                           <code className="font-mono text-xs flex-1 break-all">{verifyResult.ownerAddress}</code>
-                          <CopyButton value={verifyResult.ownerAddress} />
+                          <CopyButton value={verifyResult.ownerAddress || ""} />
                         </div>
                       </div>
 

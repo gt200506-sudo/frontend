@@ -48,7 +48,7 @@ router.post("/web3/register", async (req, res) => {
     });
   }
 
-  res.status(201).json({
+  return res.status(201).json({
     contentId,
     txHash,
     blockNumber,
@@ -68,12 +68,12 @@ router.get("/web3/verify/:contentId", async (req, res) => {
     return res.json({ contentId, verified: false, ownerAddress: null, txHash: null, registeredAt: null, network: null });
   }
 
-  res.json({
+  return res.json({
     contentId,
     verified: true,
     ownerAddress: record.ownerAddress,
     txHash: record.txHash,
-    registeredAt: record.registeredAt.toISOString(),
+    registeredAt: (record.registeredAt instanceof Date) ? record.registeredAt.toISOString() : new Date(record.registeredAt as any).toISOString(),
     network: record.network,
   });
 });

@@ -29,15 +29,17 @@ router.get("/content", async (req, res) => {
     fileSize: c.fileSize ?? undefined,
     author: c.author,
     organization: c.organization,
-    registeredAt: c.registeredAt.toISOString(),
+    registeredAt: (c.registeredAt instanceof Date) ? c.registeredAt.toISOString() : new Date(c.registeredAt as any).toISOString(),
     blockchainTxHash: c.blockchainTxHash ?? null,
     ipfsHash: c.ipfsHash ?? null,
     detectionCount: c.detectionCount,
     status: c.status,
     similarityThreshold: c.similarityThreshold,
+    excerpt: c.excerpt,
+    aiAnalysis: c.aiAnalysis ?? null,
   }));
 
-  res.json({ items, total: filtered.length, page, limit });
+  return res.json({ items, total: filtered.length, page, limit });
 });
 
 router.post("/content", async (req, res) => {
@@ -68,12 +70,14 @@ router.post("/content", async (req, res) => {
     fileSize: inserted.fileSize ?? undefined,
     author: inserted.author,
     organization: inserted.organization,
-    registeredAt: inserted.registeredAt.toISOString(),
+    registeredAt: (inserted.registeredAt instanceof Date) ? inserted.registeredAt.toISOString() : new Date(inserted.registeredAt as any).toISOString(),
     blockchainTxHash: null,
     ipfsHash: null,
     detectionCount: 0,
     status: inserted.status,
     similarityThreshold: inserted.similarityThreshold,
+    excerpt: inserted.excerpt,
+    aiAnalysis: inserted.aiAnalysis ?? null,
   });
 });
 
@@ -82,7 +86,7 @@ router.get("/content/:id", async (req, res) => {
   const [item] = await db.select().from(contentTable).where(eq(contentTable.uuid, id));
   if (!item) return res.status(404).json({ error: "Not found" });
 
-  res.json({
+  return res.json({
     id: item.uuid,
     title: item.title,
     type: item.type,
@@ -91,19 +95,21 @@ router.get("/content/:id", async (req, res) => {
     fileSize: item.fileSize ?? undefined,
     author: item.author,
     organization: item.organization,
-    registeredAt: item.registeredAt.toISOString(),
+    registeredAt: (item.registeredAt instanceof Date) ? item.registeredAt.toISOString() : new Date(item.registeredAt as any).toISOString(),
     blockchainTxHash: item.blockchainTxHash ?? null,
     ipfsHash: item.ipfsHash ?? null,
     detectionCount: item.detectionCount,
     status: item.status,
     similarityThreshold: item.similarityThreshold,
+    excerpt: item.excerpt,
+    aiAnalysis: item.aiAnalysis ?? null,
   });
 });
 
 router.delete("/content/:id", async (req, res) => {
   const { id } = DeleteContentParams.parse(req.params);
   await db.delete(contentTable).where(eq(contentTable.uuid, id));
-  res.status(204).send();
+  return res.status(204).send();
 });
 
 export default router;
