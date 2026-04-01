@@ -1,0 +1,75 @@
+Design and build a scalable AI + Web3-based digital asset protection platform with the following features and requirements:
+
+1. Authentication System
+Implement a Sign In Page:
+Email & Password login
+Optional OAuth (Google/GitHub)
+Secure authentication (JWT/session-based)
+Input validation and error handling
+2. Dashboard
+Create a dashboard interface with:
+A horizontal bar graph showing:
+X-axis: Frequency of breaches
+Y-axis: Source/platform
+Purpose:
+Identify platforms responsible for the most unauthorized usage
+3. Content Library
+Develop a Content Library module:
+Store and manage registered assets
+Enable filtering, tagging, and search
+Clean and organized UI for easy navigation
+4. Register Content Module (Updated)
+
+Include a “Register Content” feature with Asset Type options:
+
+Online Course
+Research Paper
+Digital Image
+Text Content
+Documents (PDF, DOC, etc.)
+
+❌ Do NOT include Video as an asset type
+
+Also include:
+
+Metadata fields (author, organization, timestamp)
+Optional blockchain-based ownership registration
+5. Detection Module
+Implement AI-based detection:
+NLP for text similarity (plagiarism/paraphrasing)
+Computer Vision for image/document recognition
+Scan across:
+Websites
+Social media
+Public repositories
+6. Propagation Network
+Build a network visualization system:
+Nodes = platforms/users
+Edges = content flow
+Show how content spreads and identify origin vs misuse
+7. Alerts System
+Real-time alert system for:
+Unauthorized usage detection
+Repeated violations
+Notifications via:
+Dashboard
+Email/API integration
+8. Remove Analytics Section
+❌ Completely remove the Analytics module
+Ensure no analytics UI, routes, or backend logic exist
+9. Web3 / Blockchain Integration
+Store:
+Ownership hashes
+Timestamped records
+Enable:
+Proof of ownership
+Tamper-proof tracking
+Suggested tools:
+Ethereum / Polygon
+IPFS
+10. Suggested Tech Stack
+Frontend: React / Next.js
+Backend: Node.js / FastAPI
+AI Models: BERT (NLP), CLIP/CNN (image recognition)
+Database: PostgreSQL / MongoDB
+Web3: Solidity + IPFS

@@ -1,0 +1,23 @@
+{
+  "name": "workspace",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w @workspace/api-server\" \"npm run dev -w @workspace/contentguard\"",
+    "build": "npm run typecheck && npm run build --workspaces --if-present",
+    "typecheck:libs": "tsc --build",
+    "typecheck": "npm run typecheck:libs && npm run typecheck --workspaces --if-present"
+  },
+  "private": true,
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "~5.9.2",
+    "prettier": "^3.8.1"
+  },
+  "workspaces": [
+    "artifacts/*",
+    "lib/*",
+    "lib/integrations/*",
+    "scripts"
+  ]
+}
