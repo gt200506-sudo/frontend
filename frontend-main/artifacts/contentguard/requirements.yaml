@@ -1,0 +1,17 @@
+packages:
+  "recharts": "Data visualization for analytics and dashboards"
+  "framer-motion": "Smooth page transitions and micro-interactions"
+  "date-fns": "Formatting dates in tables and charts"
+  "clsx": "Utility for constructing class names"
+  "tailwind-merge": "Utility for merging tailwind classes"
+  "lucide-react": "Icons for navigation and UI elements"
+
+images:
+  - path: "artifacts/contentguard/public/images/web3-bg.png"
+    description: "Abstract digital network and blockchain nodes connecting in a dark electric blue and purple theme, high tech enterprise security vibe"
+    aspect_ratio: "16:9"
+
+notes:
+  - Application uses dark mode by default for the enterprise security aesthetic
+  - Assuming components from @/components/ui/ are pre-existing shadcn components
+  - Orval generated hooks from @workspace/api-client-react are used for API calls

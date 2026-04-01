@@ -1,0 +1,687 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: ContentGuard API - Content Protection Platform
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: content
+    description: Content registration and management
+  - name: detections
+    description: Infringement detections
+  - name: alerts
+    description: Alert management
+  - name: analytics
+    description: Analytics and reporting
+  - name: web3
+    description: Web3 blockchain operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /content:
+    get:
+      operationId: listContent
+      tags: [content]
+      summary: List registered content
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [paper, course, image, document, video]
+      responses:
+        "200":
+          description: List of registered content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContentListResponse"
+    post:
+      operationId: registerContent
+      tags: [content]
+      summary: Register new content for protection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterContentRequest"
+      responses:
+        "201":
+          description: Content registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Content"
+
+  /content/{id}:
+    get:
+      operationId: getContent
+      tags: [content]
+      summary: Get content by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Content details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Content"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteContent
+      tags: [content]
+      summary: Delete registered content
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+
+  /detections:
+    get:
+      operationId: listDetections
+      tags: [detections]
+      summary: List infringement detections
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: contentId
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, confirmed, dismissed]
+        - name: minSimilarity
+          in: query
+          schema:
+            type: number
+      responses:
+        "200":
+          description: List of detections
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DetectionListResponse"
+
+  /detections/{id}:
+    get:
+      operationId: getDetection
+      tags: [detections]
+      summary: Get detection details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Detection details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Detection"
+    patch:
+      operationId: updateDetectionStatus
+      tags: [detections]
+      summary: Update detection status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateDetectionStatusRequest"
+      responses:
+        "200":
+          description: Updated detection
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Detection"
+
+  /alerts:
+    get:
+      operationId: listAlerts
+      tags: [alerts]
+      summary: List alerts
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: read
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: List of alerts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AlertListResponse"
+
+  /alerts/{id}/read:
+    post:
+      operationId: markAlertRead
+      tags: [alerts]
+      summary: Mark alert as read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Alert marked as read
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Alert"
+
+  /analytics/overview:
+    get:
+      operationId: getAnalyticsOverview
+      tags: [analytics]
+      summary: Get analytics overview stats
+      responses:
+        "200":
+          description: Overview statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalyticsOverview"
+
+  /analytics/propagation:
+    get:
+      operationId: getPropagationData
+      tags: [analytics]
+      summary: Get content propagation network data
+      parameters:
+        - name: contentId
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Propagation network data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PropagationData"
+
+  /analytics/trends:
+    get:
+      operationId: getDetectionTrends
+      tags: [analytics]
+      summary: Get detection trends over time
+      responses:
+        "200":
+          description: Trends data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrendsData"
+
+  /web3/register:
+    post:
+      operationId: registerOnBlockchain
+      tags: [web3]
+      summary: Register content hash on blockchain
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BlockchainRegisterRequest"
+      responses:
+        "201":
+          description: Registered on blockchain
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BlockchainRecord"
+
+  /web3/verify/{contentId}:
+    get:
+      operationId: verifyOwnership
+      tags: [web3]
+      summary: Verify content ownership on blockchain
+      parameters:
+        - name: contentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OwnershipVerification"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    Content:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        type:
+          type: string
+          enum: [paper, course, image, document, video]
+        description:
+          type: string
+        contentHash:
+          type: string
+        fileSize:
+          type: integer
+        author:
+          type: string
+        organization:
+          type: string
+        registeredAt:
+          type: string
+          format: date-time
+        blockchainTxHash:
+          type: string
+          nullable: true
+        ipfsHash:
+          type: string
+          nullable: true
+        detectionCount:
+          type: integer
+        status:
+          type: string
+          enum: [active, monitoring, archived]
+        similarityThreshold:
+          type: number
+      required: [id, title, type, contentHash, author, organization, registeredAt, detectionCount, status, similarityThreshold]
+
+    RegisterContentRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        type:
+          type: string
+          enum: [paper, course, image, document, video]
+        description:
+          type: string
+        author:
+          type: string
+        organization:
+          type: string
+        contentHash:
+          type: string
+        similarityThreshold:
+          type: number
+          default: 0.85
+        registerOnBlockchain:
+          type: boolean
+          default: false
+      required: [title, type, author, organization, contentHash]
+
+    ContentListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Content"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required: [items, total, page, limit]
+
+    Detection:
+      type: object
+      properties:
+        id:
+          type: string
+        contentId:
+          type: string
+        contentTitle:
+          type: string
+        similarityScore:
+          type: number
+        detectionType:
+          type: string
+          enum: [exact, paraphrase, partial, visual]
+        sourceUrl:
+          type: string
+        sourcePlatform:
+          type: string
+        detectedAt:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [pending, confirmed, dismissed]
+        excerpt:
+          type: string
+        aiAnalysis:
+          type: string
+          nullable: true
+      required: [id, contentId, contentTitle, similarityScore, detectionType, sourceUrl, sourcePlatform, detectedAt, status, excerpt]
+
+    UpdateDetectionStatusRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, confirmed, dismissed]
+      required: [status]
+
+    DetectionListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Detection"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required: [items, total, page, limit]
+
+    Alert:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [new_detection, high_similarity, blockchain_registered, weekly_summary]
+        title:
+          type: string
+        message:
+          type: string
+        contentId:
+          type: string
+          nullable: true
+        detectionId:
+          type: string
+          nullable: true
+        read:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        severity:
+          type: string
+          enum: [info, warning, critical]
+      required: [id, type, title, message, read, createdAt, severity]
+
+    AlertListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Alert"
+        total:
+          type: integer
+        unreadCount:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required: [items, total, unreadCount, page, limit]
+
+    AnalyticsOverview:
+      type: object
+      properties:
+        totalContent:
+          type: integer
+        activeMonitoring:
+          type: integer
+        totalDetections:
+          type: integer
+        confirmedInfringements:
+          type: integer
+        pendingReview:
+          type: integer
+        avgSimilarityScore:
+          type: number
+        blockchainRegistered:
+          type: integer
+        mostAffectedContent:
+          type: array
+          items:
+            $ref: "#/components/schemas/AffectedContentStat"
+        platformBreakdown:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlatformStat"
+      required: [totalContent, activeMonitoring, totalDetections, confirmedInfringements, pendingReview, avgSimilarityScore, blockchainRegistered, mostAffectedContent, platformBreakdown]
+
+    AffectedContentStat:
+      type: object
+      properties:
+        contentId:
+          type: string
+        title:
+          type: string
+        detectionCount:
+          type: integer
+        avgSimilarity:
+          type: number
+      required: [contentId, title, detectionCount, avgSimilarity]
+
+    PlatformStat:
+      type: object
+      properties:
+        platform:
+          type: string
+        count:
+          type: integer
+        percentage:
+          type: number
+      required: [platform, count, percentage]
+
+    PropagationData:
+      type: object
+      properties:
+        nodes:
+          type: array
+          items:
+            $ref: "#/components/schemas/PropagationNode"
+        links:
+          type: array
+          items:
+            $ref: "#/components/schemas/PropagationLink"
+      required: [nodes, links]
+
+    PropagationNode:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        type:
+          type: string
+          enum: [origin, copy, partial]
+        platform:
+          type: string
+        url:
+          type: string
+        similarityScore:
+          type: number
+        detectedAt:
+          type: string
+      required: [id, label, type, platform, url, similarityScore, detectedAt]
+
+    PropagationLink:
+      type: object
+      properties:
+        source:
+          type: string
+        target:
+          type: string
+        weight:
+          type: number
+      required: [source, target, weight]
+
+    TrendsData:
+      type: object
+      properties:
+        daily:
+          type: array
+          items:
+            $ref: "#/components/schemas/TrendPoint"
+        byType:
+          type: array
+          items:
+            $ref: "#/components/schemas/TypeTrendStat"
+      required: [daily, byType]
+
+    TrendPoint:
+      type: object
+      properties:
+        date:
+          type: string
+        detections:
+          type: integer
+        confirmed:
+          type: integer
+        dismissed:
+          type: integer
+      required: [date, detections, confirmed, dismissed]
+
+    TypeTrendStat:
+      type: object
+      properties:
+        type:
+          type: string
+        count:
+          type: integer
+      required: [type, count]
+
+    BlockchainRegisterRequest:
+      type: object
+      properties:
+        contentId:
+          type: string
+        walletAddress:
+          type: string
+      required: [contentId, walletAddress]
+
+    BlockchainRecord:
+      type: object
+      properties:
+        contentId:
+          type: string
+        txHash:
+          type: string
+        blockNumber:
+          type: integer
+        network:
+          type: string
+        ipfsHash:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        ownerAddress:
+          type: string
+      required: [contentId, txHash, blockNumber, network, ipfsHash, timestamp, ownerAddress]
+
+    OwnershipVerification:
+      type: object
+      properties:
+        contentId:
+          type: string
+        verified:
+          type: boolean
+        ownerAddress:
+          type: string
+          nullable: true
+        txHash:
+          type: string
+          nullable: true
+        registeredAt:
+          type: string
+          nullable: true
+        network:
+          type: string
+          nullable: true
+      required: [contentId, verified]
