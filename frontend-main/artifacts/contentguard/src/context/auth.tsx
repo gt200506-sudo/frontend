@@ -1,10 +1,13 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { supabase } from "@/lib/supabase";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 interface User {
   email: string;
   name: string;
   role: string;
   avatar: string;
+  providers?: string[];
 }
 
 interface AuthContextValue {
@@ -12,7 +15,10 @@ interface AuthContextValue {
   isAuthenticated: boolean;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  signOut: () => void;
+  signUp: (email: string, password: string) => Promise<{ success: boolean; error?: string; verificationRequired?: boolean }>;
+  signInWithGoogle: () => Promise<void>;
+  signInWithGithub: () => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -28,23 +34,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const mapSupabaseUser = (sbUser: SupabaseUser): User => {
+    const full_name = sbUser.user_metadata?.full_name || sbUser.user_metadata?.name || sbUser.email?.split("@")[0] || "User";
+    return {
+      email: sbUser.email || "",
+      name: full_name,
+      role: sbUser.user_metadata?.role || "Content Owner",
+      avatar: full_name.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase(),
+      providers: sbUser.app_metadata?.providers || [],
+    };
+  };
+
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        setUser(JSON.parse(stored));
+    // Check initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUser(mapSupabaseUser(session.user));
+      } else {
+        // Fallback to local storage for demo purposes if no supabase session
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          try {
+            setUser(JSON.parse(stored));
+          } catch {
+            localStorage.removeItem(STORAGE_KEY);
+          }
+        }
       }
-    } catch {
-    } finally {
       setIsLoading(false);
-    }
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUser(mapSupabaseUser(session.user));
+        localStorage.removeItem(STORAGE_KEY); // Prefer Supabase session
+      } else {
+        setUser(null);
+      }
+      setIsLoading(false);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
-    await new Promise(r => setTimeout(r, 900));
-
+    // Try demo credentials first to maintain existing behavior
     const match = DEMO_CREDENTIALS.find(c => c.email.toLowerCase() === email.toLowerCase() && c.password === password);
-
     if (match) {
       const userData: User = {
         email: match.email,
@@ -57,29 +95,60 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { success: true };
     }
 
-    if (email.includes("@") && password.length >= 6) {
-      const name = email.split("@")[0].replace(/[._]/g, " ").replace(/\b\w/g, c => c.toUpperCase());
-      const userData: User = {
-        email,
-        name,
-        role: "Content Owner",
-        avatar: name.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase(),
-      };
-      setUser(userData);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
-      return { success: true };
-    }
+    // Otherwise use Supabase
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return { success: false, error: error.message };
 
-    return { success: false, error: "Invalid email or password. Please try again." };
+    // user state will be updated by onAuthStateChange
+    return { success: true };
   };
 
-  const signOut = () => {
+  const signUp = async (email: string, password: string): Promise<{ success: boolean; error?: string; verificationRequired?: boolean }> => {
+    const { data: { user: sbUser }, error } = await supabase.auth.signUp({ email, password });
+    if (error) return { success: false, error: error.message };
+    
+    // If user is returned but no session, verification is likely required
+    const { data: { session } } = await supabase.auth.getSession();
+    const verificationRequired = !!sbUser && !session;
+    
+    return { success: true, verificationRequired };
+  };
+
+  const signInWithGoogle = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin,
+      },
+    });
+  };
+
+  const signInWithGithub = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: "github",
+      options: {
+        redirectTo: window.location.origin,
+      },
+    });
+  };
+
+  const signOut = async () => {
+    await supabase.auth.signOut();
     setUser(null);
     localStorage.removeItem(STORAGE_KEY);
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, signIn, signOut }}>
+    <AuthContext.Provider value={{
+      user,
+      isAuthenticated: !!user,
+      isLoading,
+      signIn,
+      signUp,
+      signInWithGoogle,
+      signInWithGithub,
+      signOut
+    }}>
       {children}
     </AuthContext.Provider>
   );
