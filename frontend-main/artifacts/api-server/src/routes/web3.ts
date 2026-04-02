@@ -15,11 +15,12 @@ function generateFakeIpfsHash(): string {
 }
 
 router.post("/web3/register", async (req, res) => {
+  const userId = (req as any).userId;
   const body = RegisterOnBlockchainBody.parse(req.body);
   const { contentId, walletAddress } = body;
 
   const [content] = await db.select().from(contentTable).where(eq(contentTable.uuid, contentId));
-  if (!content) return res.status(404).json({ error: "Content not found" });
+  if (!content || content.ownerId !== userId) return res.status(404).json({ error: "Content not found" });
 
   const txHash = generateFakeTxHash();
   const ipfsHash = generateFakeIpfsHash();
@@ -60,12 +61,19 @@ router.post("/web3/register", async (req, res) => {
 });
 
 router.get("/web3/verify/:contentId", async (req, res) => {
+  const userId = (req as any).userId;
   const { contentId } = VerifyOwnershipParams.parse(req.params);
 
   const [record] = await db.select().from(blockchainRecordTable).where(eq(blockchainRecordTable.contentId, contentId));
 
   if (!record) {
     return res.json({ contentId, verified: false, ownerAddress: null, txHash: null, registeredAt: null, network: null });
+  }
+
+  // Verify that the linked content belongs to the current user
+  const [content] = await db.select().from(contentTable).where(eq(contentTable.uuid, contentId));
+  if (!content || content.ownerId !== userId) {
+      return res.json({ contentId, verified: false, ownerAddress: null, txHash: null, registeredAt: null, network: null });
   }
 
   return res.json({

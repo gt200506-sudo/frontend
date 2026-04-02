@@ -17,6 +17,7 @@ import Propagation from "./pages/propagation";
 import Alerts from "./pages/alerts";
 import Web3 from "./pages/web3";
 import Settings from "./pages/settings";
+import ForgotPassword from "./pages/forgot-password";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -76,6 +77,7 @@ function Router() {
     <Switch>
       <Route path="/signin" component={SignIn} />
       <Route path="/signup" component={SignUp} />
+      <Route path="/forgot-password" component={ForgotPassword} />
       <Route>
         {isLoading ? (
           <div className="min-h-screen bg-background flex items-center justify-center">

@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { supabase } from "@/lib/supabase";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
+import { setUserIdGetter } from "@workspace/api-client-react";
 
 interface User {
   email: string;
@@ -16,8 +17,7 @@ interface AuthContextValue {
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signUp: (email: string, password: string) => Promise<{ success: boolean; error?: string; verificationRequired?: boolean }>;
-  signInWithGoogle: () => Promise<void>;
-  signInWithGithub: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
   signOut: () => Promise<void>;
 }
 
@@ -80,6 +80,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  useEffect(() => {
+    // Update API client with current user ID for data isolation
+    setUserIdGetter(() => user?.email || null);
+  }, [user]);
+
   const signIn = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     // Try demo credentials first to maintain existing behavior
     const match = DEMO_CREDENTIALS.find(c => c.email.toLowerCase() === email.toLowerCase() && c.password === password);
@@ -114,23 +119,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { success: true, verificationRequired };
   };
 
-  const signInWithGoogle = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: window.location.origin,
-      },
+  const resetPassword = async (email: string): Promise<{ success: boolean; error?: string }> => {
+    // If demo email, just simulate success
+    const match = DEMO_CREDENTIALS.find(c => c.email.toLowerCase() === email.toLowerCase());
+    if (match) {
+      return { success: true };
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`, // This would be the next step
     });
+    
+    if (error) return { success: false, error: error.message };
+    return { success: true };
   };
 
-  const signInWithGithub = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: "github",
-      options: {
-        redirectTo: window.location.origin,
-      },
-    });
-  };
 
   const signOut = async () => {
     await supabase.auth.signOut();
@@ -145,8 +148,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading,
       signIn,
       signUp,
-      signInWithGoogle,
-      signInWithGithub,
+      resetPassword,
       signOut
     }}>
       {children}

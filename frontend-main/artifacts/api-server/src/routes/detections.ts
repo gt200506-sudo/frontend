@@ -15,7 +15,8 @@ router.get("/detections", async (req, res) => {
   const limit = query.limit ?? 20;
   const offset = (page - 1) * limit;
 
-  const allItems = await db.select().from(detectionTable).orderBy(desc(detectionTable.detectedAt));
+  const userId = (req as any).userId;
+  const allItems = await db.select().from(detectionTable).where(eq(detectionTable.ownerId, userId)).orderBy(desc(detectionTable.detectedAt));
 
   let filtered = allItems;
   if (query.contentId) filtered = filtered.filter((d) => d.contentId === query.contentId);
@@ -40,9 +41,10 @@ router.get("/detections", async (req, res) => {
 });
 
 router.get("/detections/:id", async (req, res) => {
+  const userId = (req as any).userId;
   const { id } = GetDetectionParams.parse(req.params);
   const [item] = await db.select().from(detectionTable).where(eq(detectionTable.uuid, id));
-  if (!item) return res.status(404).json({ error: "Not found" });
+  if (!item || item.ownerId !== userId) return res.status(404).json({ error: "Not found" });
 
   return res.json({
     id: item.uuid,
@@ -60,6 +62,7 @@ router.get("/detections/:id", async (req, res) => {
 });
 
 router.patch("/detections/:id", async (req, res) => {
+  const userId = (req as any).userId;
   const { id } = UpdateDetectionStatusParams.parse(req.params);
   const body = UpdateDetectionStatusBody.parse(req.body);
 
@@ -67,6 +70,7 @@ router.patch("/detections/:id", async (req, res) => {
     .update(detectionTable)
     .set({ status: body.status })
     .where(eq(detectionTable.uuid, id))
+    .where(eq(detectionTable.ownerId, userId))
     .returning();
 
   if (!updated) return res.status(404).json({ error: "Not found" });

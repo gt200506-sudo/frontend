@@ -58,6 +58,7 @@ export type Content = {
   author: string; organization: string; blockchainTxHash: string | null;
   ipfsHash: string | null; detectionCount: number; status: string;
   similarityThreshold: number; registeredAt: Date;
+  ownerId: string | null;
 };
 
 export type InsertContent = Omit<Content, "id">;
@@ -67,6 +68,7 @@ export type Detection = {
   similarityScore: number; detectionType: string; sourceUrl: string;
   sourcePlatform: string; status: string; excerpt: string;
   aiAnalysis: string | null; detectedAt: Date;
+  ownerId: string | null;
 };
 
 export type InsertDetection = Omit<Detection, "id">;
@@ -75,6 +77,7 @@ export type Alert = {
   id: number; uuid: string; type: string; title: string;
   message: string; contentId: string | null; detectionId: string | null;
   read: boolean; severity: string; createdAt: Date;
+  ownerId: string | null;
 };
 
 export type InsertAlert = Omit<Alert, "id">;
@@ -379,13 +382,14 @@ let isSeeded = false;
 function seedDatabase() {
   if (isSeeded) return;
   isSeeded = true;
+  const DEMO_USER_ID = "demo@contentguard.io";
   const contentItems: Row[] = [
-    { id: 1, uuid: randomUUID(), title: "Deep Learning for Natural Language Processing: A Comprehensive Survey", type: "paper", description: "A systematic review of deep learning architectures applied to NLP tasks", contentHash: "sha256:a8f3c2d1e9b5f7a4c6d8e2f1b3a5c7d9e1f3a5c7", author: "Dr. Sarah Chen", organization: "MIT CSAIL", similarityThreshold: 0.88, status: "active", detectionCount: 14, fileSize: null, blockchainTxHash: null, ipfsHash: null, registeredAt: new Date() },
-    { id: 2, uuid: randomUUID(), title: "Advanced Machine Learning Course - Module 5: Neural Networks", type: "course", description: "Video lecture series on neural network architectures and training", contentHash: "sha256:b9e4d3c2f8a6b5c4d7e3f2a1c5b7d9f1e3a7c9", author: "Prof. James Wright", organization: "Stanford Online", similarityThreshold: 0.82, status: "monitoring", detectionCount: 8, fileSize: null, blockchainTxHash: null, ipfsHash: null, registeredAt: new Date() },
-    { id: 3, uuid: randomUUID(), title: "Quantum Computing Fundamentals - Research Paper", type: "paper", description: "Introduction to quantum gates, circuits, and algorithms", contentHash: "sha256:c1f5e4d3b8a7c6d5e4f3a2b1c0d9e8f7a6b5c4", author: "Dr. Aisha Patel", organization: "Caltech Quantum Lab", similarityThreshold: 0.90, status: "active", detectionCount: 22, fileSize: null, blockchainTxHash: null, ipfsHash: null, registeredAt: new Date() },
-    { id: 4, uuid: randomUUID(), title: "Blockchain Architecture for Decentralized Applications", type: "document", description: "Technical whitepaper on smart contract design patterns", contentHash: "sha256:d2a6f5e4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a9", author: "Marcus Thompson", organization: "Ethereum Foundation", similarityThreshold: 0.85, status: "active", detectionCount: 5, fileSize: null, blockchainTxHash: "0x7f9d8c3b2a1e4f5d6c7b8a9f0e1d2c3b4a5f6e7", ipfsHash: "QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG", registeredAt: new Date() },
-    { id: 5, uuid: randomUUID(), title: "Computer Vision Applications in Medical Imaging", type: "paper", description: "Using CNNs for tumor detection and medical image segmentation", contentHash: "sha256:e3b7a6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a0", author: "Dr. Li Wei", organization: "Johns Hopkins Medicine", similarityThreshold: 0.87, status: "active", detectionCount: 31, fileSize: null, blockchainTxHash: null, ipfsHash: null, registeredAt: new Date() },
-    { id: 6, uuid: randomUUID(), title: "Introduction to Cryptography - Online Course", type: "course", description: "Comprehensive cryptography course covering symmetric, asymmetric, and hash functions", contentHash: "sha256:f4c8b7a6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1", author: "Prof. Alan Morris", organization: "Coursera / Princeton", similarityThreshold: 0.80, status: "monitoring", detectionCount: 17, fileSize: null, blockchainTxHash: null, ipfsHash: null, registeredAt: new Date() },
+    { id: 1, uuid: randomUUID(), title: "Deep Learning for Natural Language Processing: A Comprehensive Survey", type: "paper", description: "A systematic review of deep learning architectures applied to NLP tasks", contentHash: "sha256:a8f3c2d1e9b5f7a4c6d8e2f1b3a5c7d9e1f3a5c7", author: "Dr. Sarah Chen", organization: "MIT CSAIL", similarityThreshold: 0.88, status: "active", detectionCount: 14, fileSize: null, blockchainTxHash: null, ipfsHash: null, registeredAt: new Date(), ownerId: DEMO_USER_ID },
+    { id: 2, uuid: randomUUID(), title: "Advanced Machine Learning Course - Module 5: Neural Networks", type: "course", description: "Video lecture series on neural network architectures and training", contentHash: "sha256:b9e4d3c2f8a6b5c4d7e3f2a1c5b7d9f1e3a7c9", author: "Prof. James Wright", organization: "Stanford Online", similarityThreshold: 0.82, status: "monitoring", detectionCount: 8, fileSize: null, blockchainTxHash: null, ipfsHash: null, registeredAt: new Date(), ownerId: DEMO_USER_ID },
+    { id: 3, uuid: randomUUID(), title: "Quantum Computing Fundamentals - Research Paper", type: "paper", description: "Introduction to quantum gates, circuits, and algorithms", contentHash: "sha256:c1f5e4d3b8a7c6d5e4f3a2b1c0d9e8f7a6b5c4", author: "Dr. Aisha Patel", organization: "Caltech Quantum Lab", similarityThreshold: 0.90, status: "active", detectionCount: 22, fileSize: null, blockchainTxHash: null, ipfsHash: null, registeredAt: new Date(), ownerId: DEMO_USER_ID },
+    { id: 4, uuid: randomUUID(), title: "Blockchain Architecture for Decentralized Applications", type: "document", description: "Technical whitepaper on smart contract design patterns", contentHash: "sha256:d2a6f5e4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a9", author: "Marcus Thompson", organization: "Ethereum Foundation", similarityThreshold: 0.85, status: "active", detectionCount: 5, fileSize: null, blockchainTxHash: "0x7f9d8c3b2a1e4f5d6c7b8a9f0e1d2c3b4a5f6e7", ipfsHash: "QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG", registeredAt: new Date(), ownerId: DEMO_USER_ID },
+    { id: 5, uuid: randomUUID(), title: "Computer Vision Applications in Medical Imaging", type: "paper", description: "Using CNNs for tumor detection and medical image segmentation", contentHash: "sha256:e3b7a6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a0", author: "Dr. Li Wei", organization: "Johns Hopkins Medicine", similarityThreshold: 0.87, status: "active", detectionCount: 31, fileSize: null, blockchainTxHash: null, ipfsHash: null, registeredAt: new Date(), ownerId: DEMO_USER_ID },
+    { id: 6, uuid: randomUUID(), title: "Introduction to Cryptography - Online Course", type: "course", description: "Comprehensive cryptography course covering symmetric, asymmetric, and hash functions", contentHash: "sha256:f4c8b7a6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1", author: "Prof. Alan Morris", organization: "Coursera / Princeton", similarityThreshold: 0.80, status: "monitoring", detectionCount: 17, fileSize: null, blockchainTxHash: null, ipfsHash: null, registeredAt: new Date(), ownerId: DEMO_USER_ID },
   ];
   setRows(contentTable, contentItems);
 
@@ -407,17 +411,18 @@ function seedDatabase() {
       excerpt: EXCERPTS[Math.floor(Math.random() * EXCERPTS.length)],
       aiAnalysis: `Semantic embedding analysis indicates ${Math.floor(Math.random() * 30 + 70)}% lexical overlap with original content. NLP model confidence: ${Math.floor(Math.random() * 10 + 90)}%. Paraphrase detection triggered at paragraph level.`,
       detectedAt,
+      ownerId: DEMO_USER_ID,
     });
   }
   setRows(detectionTable, detections);
 
   const alerts: Row[] = [
-    { id: 1, uuid: randomUUID(), type: "high_similarity", title: "Critical: 97% Match Detected", message: "An exact copy of 'Deep Learning for NLP' was found on ResearchGate with 97% similarity score.", contentId: contentItems[0].uuid, detectionId: null, severity: "critical", read: false, createdAt: new Date(now.getTime() - 1000 * 60 * 30) },
-    { id: 2, uuid: randomUUID(), type: "new_detection", title: "New Detection: Quantum Computing Paper", message: "A partial copy of your quantum computing research was found on Academia.edu.", contentId: contentItems[2].uuid, detectionId: null, severity: "warning", read: false, createdAt: new Date(now.getTime() - 1000 * 60 * 60 * 2) },
-    { id: 3, uuid: randomUUID(), type: "new_detection", title: "Paraphrase Detected: ML Course Content", message: "Paraphrased version of Module 5 Neural Networks found on Medium blog post.", contentId: contentItems[1].uuid, detectionId: null, severity: "warning", read: false, createdAt: new Date(now.getTime() - 1000 * 60 * 60 * 5) },
-    { id: 4, uuid: randomUUID(), type: "blockchain_registered", title: "Blockchain Registration Successful", message: "Blockchain Architecture whitepaper successfully registered on Polygon network. TX: 0x7f9d8c3b...", contentId: contentItems[3].uuid, detectionId: null, severity: "info", read: true, createdAt: new Date(now.getTime() - 1000 * 60 * 60 * 24) },
-    { id: 5, uuid: randomUUID(), type: "weekly_summary", title: "Weekly Summary: 12 New Detections", message: "This week ContentGuard detected 12 new potential infringements across 6 platforms. 4 confirmed, 3 dismissed, 5 pending review.", contentId: null, detectionId: null, severity: "info", read: true, createdAt: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 7) },
-    { id: 6, uuid: randomUUID(), type: "high_similarity", title: "High Similarity: Medical Imaging Paper", message: "92% match found on Scribd for Computer Vision in Medical Imaging paper.", contentId: contentItems[4].uuid, detectionId: null, severity: "critical", read: false, createdAt: new Date(now.getTime() - 1000 * 60 * 45) },
+    { id: 1, uuid: randomUUID(), type: "high_similarity", title: "Critical: 97% Match Detected", message: "An exact copy of 'Deep Learning for NLP' was found on ResearchGate with 97% similarity score.", contentId: contentItems[0].uuid, detectionId: null, severity: "critical", read: false, createdAt: new Date(now.getTime() - 1000 * 60 * 30), ownerId: DEMO_USER_ID },
+    { id: 2, uuid: randomUUID(), type: "new_detection", title: "New Detection: Quantum Computing Paper", message: "A partial copy of your quantum computing research was found on Academia.edu.", contentId: contentItems[2].uuid, detectionId: null, severity: "warning", read: false, createdAt: new Date(now.getTime() - 1000 * 60 * 60 * 2), ownerId: DEMO_USER_ID },
+    { id: 3, uuid: randomUUID(), type: "new_detection", title: "Paraphrase Detected: ML Course Content", message: "Paraphrased version of Module 5 Neural Networks found on Medium blog post.", contentId: contentItems[1].uuid, detectionId: null, severity: "warning", read: false, createdAt: new Date(now.getTime() - 1000 * 60 * 60 * 5), ownerId: DEMO_USER_ID },
+    { id: 4, uuid: randomUUID(), type: "blockchain_registered", title: "Blockchain Registration Successful", message: "Blockchain Architecture whitepaper successfully registered on Polygon network. TX: 0x7f9d8c3b...", contentId: contentItems[3].uuid, detectionId: null, severity: "info", read: true, createdAt: new Date(now.getTime() - 1000 * 60 * 60 * 24), ownerId: DEMO_USER_ID },
+    { id: 5, uuid: randomUUID(), type: "weekly_summary", title: "Weekly Summary: 12 New Detections", message: "This week ContentGuard detected 12 new potential infringements across 6 platforms. 4 confirmed, 3 dismissed, 5 pending review.", contentId: null, detectionId: null, severity: "info", read: true, createdAt: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 7), ownerId: DEMO_USER_ID },
+    { id: 6, uuid: randomUUID(), type: "high_similarity", title: "High Similarity: Medical Imaging Paper", message: "92% match found on Scribd for Computer Vision in Medical Imaging paper.", contentId: contentItems[4].uuid, detectionId: null, severity: "critical", read: false, createdAt: new Date(now.getTime() - 1000 * 60 * 45), ownerId: DEMO_USER_ID },
   ];
   setRows(alertTable, alerts);
   setRows(blockchainRecordTable, []);
