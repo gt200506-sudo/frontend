@@ -10,7 +10,8 @@ router.get("/alerts", async (req, res) => {
   const limit = query.limit ?? 20;
   const offset = (page - 1) * limit;
 
-  const allItems = await db.select().from(alertTable).orderBy(desc(alertTable.createdAt));
+  const userId = (req as any).userId;
+  const allItems = await db.select().from(alertTable).where(eq(alertTable.ownerId, userId)).orderBy(desc(alertTable.createdAt));
 
   let filtered = allItems;
   if (query.read != null) filtered = filtered.filter((a) => a.read === query.read);
@@ -32,11 +33,13 @@ router.get("/alerts", async (req, res) => {
 });
 
 router.post("/alerts/:id/read", async (req, res) => {
+  const userId = (req as any).userId;
   const { id } = MarkAlertReadParams.parse(req.params);
   const [updated] = await db
     .update(alertTable)
     .set({ read: true })
     .where(eq(alertTable.uuid, id))
+    .where(eq(alertTable.ownerId, userId))
     .returning();
 
   if (!updated) return res.status(404).json({ error: "Not found" });

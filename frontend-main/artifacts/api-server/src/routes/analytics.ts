@@ -1,12 +1,13 @@
 import { Router } from "express";
-import { db, contentTable, detectionTable, desc, asc } from "@workspace/db";
+import { db, contentTable, detectionTable, desc, asc, eq } from "@workspace/db";
 import { GetPropagationDataQueryParams } from "@workspace/api-zod";
 
 const router = Router();
 
-router.get("/analytics/overview", async (_req, res) => {
-  const contents = await db.select().from(contentTable);
-  const detections = await db.select().from(detectionTable);
+router.get("/analytics/overview", async (req, res) => {
+  const userId = (req as any).userId;
+  const contents = await db.select().from(contentTable).where(eq(contentTable.ownerId, userId));
+  const detections = await db.select().from(detectionTable).where(eq(detectionTable.ownerId, userId));
 
   const totalContent = contents.length;
   const activeMonitoring = contents.filter((c) => c.status === "active" || c.status === "monitoring").length;
@@ -49,7 +50,7 @@ router.get("/analytics/overview", async (_req, res) => {
     percentage: totalDetections > 0 ? (count / totalDetections) * 100 : 0,
   }));
 
-  res.json({
+  return res.json({
     totalContent,
     activeMonitoring,
     totalDetections,
@@ -63,8 +64,9 @@ router.get("/analytics/overview", async (_req, res) => {
 });
 
 router.get("/analytics/propagation", async (req, res) => {
+  const userId = (req as any).userId;
   const query = GetPropagationDataQueryParams.parse(req.query);
-  const detections = await db.select().from(detectionTable).orderBy(desc(detectionTable.detectedAt)).limit(30);
+  const detections = await db.select().from(detectionTable).where(eq(detectionTable.ownerId, userId)).orderBy(desc(detectionTable.detectedAt)).limit(30);
 
   const filtered = query.contentId ? detections.filter((d) => d.contentId === query.contentId) : detections;
 
@@ -95,11 +97,12 @@ router.get("/analytics/propagation", async (req, res) => {
     weight: d.similarityScore,
   }));
 
-  res.json({ nodes, links });
+  return res.json({ nodes, links });
 });
 
-router.get("/analytics/trends", async (_req, res) => {
-  const detections = await db.select().from(detectionTable).orderBy(asc(detectionTable.detectedAt));
+router.get("/analytics/trends", async (req, res) => {
+  const userId = (req as any).userId;
+  const detections = await db.select().from(detectionTable).where(eq(detectionTable.ownerId, userId)).orderBy(asc(detectionTable.detectedAt));
 
   const dailyMap = new Map<string, { detections: number; confirmed: number; dismissed: number }>();
   const now = new Date();
@@ -130,7 +133,7 @@ router.get("/analytics/trends", async (_req, res) => {
   }
   const byType = Array.from(typeMap.entries()).map(([type, count]) => ({ type, count }));
 
-  res.json({ daily, byType });
+  return res.json({ daily, byType });
 });
 
 export default router;

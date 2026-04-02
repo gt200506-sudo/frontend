@@ -16,7 +16,8 @@ router.get("/content", async (req, res) => {
   const limit = query.limit ?? 20;
   const offset = (page - 1) * limit;
 
-  let baseQuery = db.select().from(contentTable).orderBy(desc(contentTable.registeredAt));
+  const userId = (req as any).userId;
+  let baseQuery = db.select().from(contentTable).where(eq(contentTable.ownerId, userId)).orderBy(desc(contentTable.registeredAt));
 
   const allItems = await baseQuery;
   const filtered = query.type ? allItems.filter((c) => c.type === query.type) : allItems;
@@ -45,6 +46,7 @@ router.get("/content", async (req, res) => {
 router.post("/content", async (req, res) => {
   const body = RegisterContentBody.parse(req.body);
   const uuid = randomUUID();
+  const userId = (req as any).userId;
   const [inserted] = await db
     .insert(contentTable)
     .values({
@@ -58,6 +60,7 @@ router.post("/content", async (req, res) => {
       similarityThreshold: body.similarityThreshold ?? 0.85,
       status: "active",
       detectionCount: 0,
+      ownerId: userId,
     })
     .returning();
 
@@ -82,9 +85,10 @@ router.post("/content", async (req, res) => {
 });
 
 router.get("/content/:id", async (req, res) => {
+  const userId = (req as any).userId;
   const { id } = GetContentParams.parse(req.params);
   const [item] = await db.select().from(contentTable).where(eq(contentTable.uuid, id));
-  if (!item) return res.status(404).json({ error: "Not found" });
+  if (!item || item.ownerId !== userId) return res.status(404).json({ error: "Not found" });
 
   return res.json({
     id: item.uuid,
@@ -107,8 +111,9 @@ router.get("/content/:id", async (req, res) => {
 });
 
 router.delete("/content/:id", async (req, res) => {
+  const userId = (req as any).userId;
   const { id } = DeleteContentParams.parse(req.params);
-  await db.delete(contentTable).where(eq(contentTable.uuid, id));
+  await db.delete(contentTable).where(eq(contentTable.uuid, id)).where(eq(contentTable.ownerId, userId));
   return res.status(204).send();
 });
 
