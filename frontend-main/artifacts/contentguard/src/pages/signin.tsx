@@ -56,6 +56,9 @@ export default function SignIn() {
           </div>
           <h1 className="text-3xl font-display font-bold text-gradient">ContentGuard</h1>
           <p className="text-muted-foreground mt-1 text-sm">AI + Web3 Digital Asset Protection</p>
+          <Link href="/" className="text-xs text-primary/80 hover:text-primary hover:underline mt-3 inline-block">
+            View product tour
+          </Link>
         </div>
 
         <Card className="glass-panel border-border/40 shadow-2xl shadow-black/40">

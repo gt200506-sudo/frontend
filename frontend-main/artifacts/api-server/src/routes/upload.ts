@@ -10,7 +10,7 @@ import { randomUUID } from "crypto";
 import { db, contentTable, uploadedContentTable } from "@workspace/db";
 import { getSupabaseServer } from "../lib/supabase";
 import { perceptualHashImage, perceptualHashVideo, sha256Hex, textFingerprintPdf } from "../lib/piracyDetection";
-import { scanContent } from "../services/aiScanner";
+import { extractPlainTextSnippet, runPiracyDetectionPipeline } from "../services/piracyPipeline";
 
 const router = Router();
 const upload = multer({
@@ -121,7 +121,7 @@ router.post("/content/upload", (req, res) => {
       }
       const gatewayUrl = `https://gateway.pinata.cloud/ipfs/${ipfsHash}`;
 
-      const scanResults = await scanContent(file);
+      const textSnippet = await extractPlainTextSnippet(fileBuffer, file.mimetype, 400);
 
       const supabase = getSupabaseServer();
       if (supabase) {
@@ -134,6 +134,10 @@ router.post("/content/upload", (req, res) => {
           ipfs_hash: ipfsHash,
           gateway_url: gatewayUrl,
           content_hash: hash,
+          perceptual_hash: perceptualHash,
+          text_snippet: textSnippet || null,
+          scan_status: "scanning",
+          detections: [],
         });
         if (sbError) {
           console.error("Supabase insert failed:", sbError);
@@ -142,6 +146,22 @@ router.post("/content/upload", (req, res) => {
             details: sbError.message,
           });
         }
+
+        const pipelineBuffer = Buffer.from(fileBuffer);
+        setImmediate(() => {
+          void runPiracyDetectionPipeline({
+            supabase,
+            contentId: rowId,
+            userId,
+            fileName: file.originalname,
+            buffer: pipelineBuffer,
+            mimeType: file.mimetype,
+            sha256: hash,
+            ipfsCid: ipfsHash,
+            perceptualHash,
+          });
+        });
+
         return res.status(201).json({
           success: true,
           ipfsHash,
@@ -157,7 +177,8 @@ router.post("/content/upload", (req, res) => {
             uploadedAt: new Date().toISOString(),
             pinSize: pinataResponse?.PinSize ?? null,
             timestamp: pinataResponse?.Timestamp ?? null,
-            scanResults,
+            scanResults: [],
+            scanStatus: "scanning",
           },
         });
       }
@@ -170,7 +191,7 @@ router.post("/content/upload", (req, res) => {
           fileType: file.mimetype,
           ipfsHash,
           uploadedAt: new Date(),
-          scanResults,
+          scanResults: [],
         })
         .returning();
       const uploadedAt = uploadedMeta?.uploadedAt instanceof Date ? uploadedMeta.uploadedAt : new Date();
@@ -198,6 +219,21 @@ router.post("/content/upload", (req, res) => {
         })
         .returning();
 
+      const pipelineBuffer = Buffer.from(fileBuffer);
+      setImmediate(() => {
+        void runPiracyDetectionPipeline({
+          supabase: null,
+          contentId: uuid,
+          userId,
+          fileName: file.originalname,
+          buffer: pipelineBuffer,
+          mimeType: file.mimetype,
+          sha256: hash,
+          ipfsCid: ipfsHash,
+          perceptualHash,
+        });
+      });
+
       return res.status(201).json({
         success: true,
         ipfsHash,
@@ -213,7 +249,8 @@ router.post("/content/upload", (req, res) => {
           uploadedAt: uploadedAt.toISOString(),
           pinSize: pinataResponse?.PinSize ?? null,
           timestamp: pinataResponse?.Timestamp ?? null,
-          scanResults,
+          scanResults: [],
+          scanStatus: "scanning",
         },
       });
     } catch (error: any) {
