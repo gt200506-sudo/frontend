@@ -19,6 +19,7 @@ import Alerts from "./pages/alerts";
 import Web3 from "./pages/web3";
 import Settings from "./pages/settings";
 import ForgotPassword from "./pages/forgot-password";
+import LandingPage from "./pages/landing";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,36 +31,30 @@ const queryClient = new QueryClient({
   }
 });
 
-function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
+function Router() {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center animate-pulse" />
-          <p className="text-muted-foreground text-sm">Loading ContentGuard...</p>
-        </div>
+        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center animate-pulse" />
       </div>
     );
   }
 
-  if (!isAuthenticated) {
-    return <Redirect to="/signin" />;
-  }
-
-  return <Component />;
-}
-
-function Router() {
-  const { isAuthenticated, isLoading } = useAuth();
-
-  if (!isLoading && isAuthenticated) {
+  if (isAuthenticated) {
     return (
       <Layout>
         <Switch>
-          <Route path="/signin"><Redirect to="/" /></Route>
-          <Route path="/signup"><Redirect to="/" /></Route>
+          <Route path="/signin">
+            <Redirect to="/" />
+          </Route>
+          <Route path="/signup">
+            <Redirect to="/" />
+          </Route>
+          <Route path="/landing">
+            <Redirect to="/" />
+          </Route>
           <Route path="/" component={Dashboard} />
           <Route path="/content/view" component={ContentView} />
           <Route path="/content" component={ContentLibrary} />
@@ -77,17 +72,15 @@ function Router() {
 
   return (
     <Switch>
+      <Route path="/landing">
+        <Redirect to="/" />
+      </Route>
       <Route path="/signin" component={SignIn} />
       <Route path="/signup" component={SignUp} />
       <Route path="/forgot-password" component={ForgotPassword} />
+      <Route path="/" component={LandingPage} />
       <Route>
-        {isLoading ? (
-          <div className="min-h-screen bg-background flex items-center justify-center">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center animate-pulse" />
-          </div>
-        ) : (
-          <Redirect to="/signin" />
-        )}
+        <Redirect to="/signin" />
       </Route>
     </Switch>
   );
