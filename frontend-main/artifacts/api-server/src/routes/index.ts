@@ -6,6 +6,8 @@ import alertsRouter from "./alerts";
 import analyticsRouter from "./analytics";
 import web3Router from "./web3";
 import uploadRouter from "./upload";
+import piracyRouter from "./piracy";
+import userRouter from "./user";
 
 const router: IRouter = Router();
 
@@ -21,5 +23,7 @@ router.use(alertsRouter);
 router.use(analyticsRouter);
 router.use(web3Router);
 router.use(uploadRouter);
+router.use(piracyRouter);
+router.use(userRouter);
 
 export default router;

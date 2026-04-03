@@ -16,6 +16,10 @@ export const contentTable = pgTable("content", {
   type: contentTypeEnum("type").notNull(),
   description: text("description"),
   contentHash: text("content_hash").notNull(),
+  // Used for piracy similarity detection across visually/textually similar files.
+  // These are nullable because older registered content may only have SHA-256.
+  perceptualHash: text("perceptual_hash"),
+  textFingerprint: text("text_fingerprint"),
   fileSize: integer("file_size"),
   author: text("author").notNull(),
   organization: text("organization").notNull(),

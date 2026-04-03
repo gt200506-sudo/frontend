@@ -11,6 +11,7 @@ import SignIn from "@/pages/signin";
 import SignUp from "@/pages/signup";
 import Dashboard from "./pages/dashboard";
 import ContentLibrary from "./pages/content-library";
+import ContentView from "./pages/content-view";
 import RegisterContent from "./pages/register-content";
 import Detections from "./pages/detections";
 import Propagation from "./pages/propagation";
@@ -60,6 +61,7 @@ function Router() {
           <Route path="/signin"><Redirect to="/" /></Route>
           <Route path="/signup"><Redirect to="/" /></Route>
           <Route path="/" component={Dashboard} />
+          <Route path="/content/view" component={ContentView} />
           <Route path="/content" component={ContentLibrary} />
           <Route path="/content/register" component={RegisterContent} />
           <Route path="/detections" component={Detections} />

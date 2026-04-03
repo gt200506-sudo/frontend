@@ -19,6 +19,7 @@ interface AuthContextValue {
   signUp: (email: string, password: string) => Promise<{ success: boolean; error?: string; verificationRequired?: boolean }>;
   resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
   signOut: () => Promise<void>;
+  updateProfile: (updates: Partial<Pick<User, "name" | "email">>) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -141,6 +142,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem(STORAGE_KEY);
   };
 
+  const updateProfile = (updates: Partial<Pick<User, "name" | "email">>) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const next: User = {
+        ...prev,
+        ...updates,
+        avatar: (updates.name ?? prev.name)
+          .split(" ")
+          .map((n) => n[0])
+          .join("")
+          .slice(0, 2)
+          .toUpperCase(),
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      return next;
+    });
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -149,7 +168,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signIn,
       signUp,
       resetPassword,
-      signOut
+      signOut,
+      updateProfile
     }}>
       {children}
     </AuthContext.Provider>
