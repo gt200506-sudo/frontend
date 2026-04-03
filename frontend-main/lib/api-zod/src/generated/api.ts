@@ -43,6 +43,7 @@ export const ListContentResponse = zod.object({
       detectionCount: zod.number(),
       status: zod.enum(["active", "monitoring", "archived"]),
       similarityThreshold: zod.number(),
+      libraryMatches: zod.record(zod.string(), zod.unknown()).nullish(),
     }),
   ),
   total: zod.number(),

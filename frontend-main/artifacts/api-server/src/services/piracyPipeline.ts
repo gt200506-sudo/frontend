@@ -6,7 +6,7 @@ import { PDFParse } from "pdf-parse";
 
 import { db, detectionTable } from "@workspace/db";
 import { hammingSimilarity, perceptualHashImage } from "../lib/piracyDetection";
-import { googleCustomSearch, scrapePage } from "./webScanner";
+import { searchWeb, scrapePage } from "./webScanner";
 
 export type PipelineDetection = {
   id: string;
@@ -112,7 +112,7 @@ export async function runPiracyDetectionPipeline(args: {
 
     // --- A) Exact: search for hash / IPFS CID in indexed pages ---
     const exactQuery = `${sha256.slice(0, 32)} OR "${ipfsCid}"`;
-    const exactUrls = await googleCustomSearch(exactQuery);
+    const exactUrls = await searchWeb(exactQuery);
     for (const url of exactUrls.slice(0, 4)) {
       await delay(SCRAPE_DELAY_MS);
       const page = await scrapePage(url);
@@ -133,7 +133,7 @@ export async function runPiracyDetectionPipeline(args: {
 
     // --- B) Text: Google + NLP similarity ---
     const q = snippet.length > 20 ? `"${fileName}" ${snippet.slice(0, 120)}` : `"${fileName}"`;
-    const textUrls = await googleCustomSearch(q);
+    const textUrls = await searchWeb(q);
     const seenUrl = new Set(results.map((r) => r.url));
 
     for (const url of textUrls) {

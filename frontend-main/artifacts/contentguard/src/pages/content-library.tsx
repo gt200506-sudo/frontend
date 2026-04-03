@@ -1,15 +1,45 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useListContent } from "@workspace/api-client-react";
 
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Plus, FileText, Image as ImageIcon, BookOpen, Shield, File, AlignLeft, Video, ExternalLink } from "lucide-react";
+import {
+  Search,
+  Plus,
+  FileText,
+  Image as ImageIcon,
+  BookOpen,
+  Shield,
+  File,
+  AlignLeft,
+  Video,
+  ExternalLink,
+  Sparkles,
+  CheckCircle2,
+  AlertTriangle,
+  Skull,
+  Info,
+} from "lucide-react";
 import { Link } from "wouter";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import {
+  startAIDetection,
+  detectResultFromPayload,
+  itemsToResultMap,
+  type DetectContentResultItem,
+  type DetectContentMatch,
+} from "@/lib/contentDetection";
 
 function getIpfsGatewayUrl(ipfsHash: string | null | undefined): string | null {
   const cid = ipfsHash?.trim();
@@ -26,11 +56,30 @@ const TYPE_FILTERS = [
   { value: "text", label: "Text Content", icon: AlignLeft },
 ];
 
+type DetectionPhase = "idle" | "running" | "completed";
+
 export default function ContentLibrary() {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
-  const { data, isLoading } = useListContent({ limit: 50 });
+  const { data, isLoading, refetch } = useListContent({ limit: 50 });
+
+  const [detectionPhase, setDetectionPhase] = useState<DetectionPhase>("idle");
+  const [detectionById, setDetectionById] = useState<Record<string, DetectContentResultItem>>({});
+  const [detailContentId, setDetailContentId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const items = data?.items;
+    if (!items?.length) return;
+    setDetectionById((prev) => {
+      const next = { ...prev };
+      for (const item of items) {
+        const fromDb = detectResultFromPayload(item.id, item.libraryMatches);
+        if (fromDb) next[item.id] = fromDb;
+      }
+      return next;
+    });
+  }, [data?.items]);
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -77,6 +126,75 @@ export default function ContentLibrary() {
     return acc;
   }, {} as Record<string, number>);
 
+  const handleStartAIDetection = async () => {
+    const ids = (data?.items ?? []).map((i) => i.id);
+    if (!ids.length) {
+      toast({
+        title: "No content to scan",
+        description: "Upload or register assets first.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setDetectionPhase("running");
+    setDetectionById({});
+    try {
+      const res = await startAIDetection({ contentIds: ids });
+      setDetectionById((prev) => ({
+        ...prev,
+        ...itemsToResultMap(res.items, res.processedAt),
+      }));
+      setDetectionPhase("completed");
+      await refetch();
+      toast({
+        title: "Scan complete",
+        description:
+          res.truncated && res.totalEligible != null
+            ? `Analyzed ${res.count} of ${res.totalEligible} asset(s) (batch cap ${res.maxBatch ?? "—"}). Run again or narrow with content IDs.`
+            : `Analyzed ${res.count} asset(s).`,
+      });
+      for (const n of res.notifications ?? []) {
+        toast({
+          title: "Possible web match",
+          description: (
+            <span className="block space-y-1">
+              <span>
+                {n.message} — Risk: <strong>{n.risk}</strong> ({n.similarity}%)
+              </span>
+              {n.topUrl ? (
+                <a
+                  href={n.topUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-primary underline break-all"
+                >
+                  {n.topUrl}
+                </a>
+              ) : null}
+            </span>
+          ),
+          variant: n.risk === "High" ? "destructive" : "default",
+        });
+      }
+    } catch (e: unknown) {
+      setDetectionPhase("idle");
+      const msg = e instanceof Error ? e.message : "Request failed";
+      toast({
+        title: "Detection failed",
+        description: msg,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const detailResult = detailContentId ? detectionById[detailContentId] : undefined;
+
+  const matchRiskClass = (m: DetectContentMatch) => {
+    if (m.status === "high" || m.similarity >= 75) return "text-rose-400 border-rose-500/30 bg-rose-500/10";
+    if (m.status === "medium" || m.similarity >= 50) return "text-amber-400 border-amber-500/30 bg-amber-500/10";
+    return "text-slate-300 border-border/50 bg-white/[0.04]";
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -118,18 +236,50 @@ export default function ContentLibrary() {
       </div>
 
       <Card className="glass-panel p-6">
-        <div className="flex items-center gap-4 mb-6">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search by title or author..."
-              className="pl-9 bg-background/50 border-border/50 focus-visible:ring-primary/30"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between mb-6">
+          <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by title or author..."
+                className="pl-9 bg-background/50 border-border/50 focus-visible:ring-primary/30"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="text-sm text-muted-foreground whitespace-nowrap">
+              {filteredItems.length} asset{filteredItems.length !== 1 ? "s" : ""}
+            </div>
           </div>
-          <div className="text-sm text-muted-foreground">
-            {filteredItems.length} asset{filteredItems.length !== 1 ? "s" : ""}
+
+          <div className="flex flex-wrap items-center justify-end gap-3">
+            <div className="flex items-center gap-2 text-xs sm:text-sm">
+              <span
+                className={`inline-block h-2 w-2 rounded-full shrink-0 ${
+                  detectionPhase === "idle"
+                    ? "bg-muted-foreground/50"
+                    : detectionPhase === "running"
+                      ? "bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.8)] animate-pulse"
+                      : "bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.6)]"
+                }`}
+                aria-hidden
+              />
+              <span className="text-muted-foreground">
+                {detectionPhase === "idle" && "Detection not started"}
+                {detectionPhase === "running" && "Scanning the web…"}
+                {detectionPhase === "completed" && "Scan complete"}
+              </span>
+            </div>
+            <Button
+              type="button"
+              onClick={() => void handleStartAIDetection()}
+              disabled={detectionPhase === "running" || isLoading}
+              className="relative overflow-hidden bg-gradient-to-r from-primary via-primary to-accent text-primary-foreground shadow-lg shadow-primary/30 hover:opacity-[0.98] border-0"
+            >
+              <span className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent pointer-events-none" />
+              <Sparkles className="w-4 h-4 mr-2 relative" />
+              <span className="relative font-semibold">Start AI Detection</span>
+            </Button>
           </div>
         </div>
 
@@ -141,6 +291,7 @@ export default function ContentLibrary() {
                 <th className="px-6 py-4 font-medium">Category</th>
                 <th className="px-6 py-4 font-medium">Status</th>
                 <th className="px-6 py-4 font-medium">Detections</th>
+                <th className="px-6 py-4 font-medium">Detection Status</th>
                 <th className="px-6 py-4 font-medium">Registered</th>
                 <th className="px-6 py-4 font-medium text-right">Actions</th>
               </tr>
@@ -153,6 +304,7 @@ export default function ContentLibrary() {
                     <td className="px-6 py-4"><div className="h-4 w-16 bg-white/10 rounded"></div></td>
                     <td className="px-6 py-4"><div className="h-4 w-20 bg-white/10 rounded"></div></td>
                     <td className="px-6 py-4"><div className="h-4 w-8 bg-white/10 rounded"></div></td>
+                    <td className="px-6 py-4"><div className="h-4 w-28 bg-white/10 rounded"></div></td>
                     <td className="px-6 py-4"><div className="h-4 w-24 bg-white/10 rounded"></div></td>
                     <td className="px-6 py-4"><div className="h-4 w-12 bg-white/10 rounded ml-auto"></div></td>
                   </tr>
@@ -184,6 +336,73 @@ export default function ContentLibrary() {
                           <span className="text-muted-foreground">0</span>
                         )}
                       </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      {(() => {
+                        const r = detectionById[item.id];
+                        if (!r) {
+                          return <span className="text-muted-foreground text-xs">Not scanned</span>;
+                        }
+                        const hasMatches = r.matches.length > 0;
+                        if (r.status === "not_matched") {
+                          return (
+                            <div className="flex flex-wrap items-center gap-2">
+                              <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-400 gap-1">
+                                <CheckCircle2 className="w-3 h-3" />
+                                No Issues
+                              </Badge>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 px-2 text-xs"
+                                onClick={() => setDetailContentId(item.id)}
+                              >
+                                <Info className="w-3 h-3 mr-1" />
+                                {hasMatches ? "View Matches" : "Details"}
+                              </Button>
+                            </div>
+                          );
+                        }
+                        if (r.status === "potential") {
+                          return (
+                            <div className="flex flex-wrap items-center gap-2">
+                              <Badge variant="outline" className="border-amber-500/30 bg-amber-500/10 text-amber-400 gap-1">
+                                <AlertTriangle className="w-3 h-3" />
+                                Potential Match
+                              </Badge>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 px-2 text-xs"
+                                onClick={() => setDetailContentId(item.id)}
+                              >
+                                <Info className="w-3 h-3 mr-1" />
+                                View Matches
+                              </Button>
+                            </div>
+                          );
+                        }
+                        return (
+                          <div className="flex flex-wrap items-center gap-2">
+                            <Badge variant="outline" className="border-rose-500/30 bg-rose-500/10 text-rose-400 gap-1">
+                              <Skull className="w-3 h-3" />
+                              High Risk
+                            </Badge>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 px-2 text-xs"
+                              onClick={() => setDetailContentId(item.id)}
+                            >
+                              <Info className="w-3 h-3 mr-1" />
+                              View Matches
+                            </Button>
+                          </div>
+                        );
+                      })()}
                     </td>
                     <td className="px-6 py-4 text-muted-foreground">
                       {format(new Date(item.registeredAt), 'MMM d, yyyy')}
@@ -221,7 +440,7 @@ export default function ContentLibrary() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-muted-foreground">
+                  <td colSpan={7} className="px-6 py-12 text-center text-muted-foreground">
                     <Shield className="w-12 h-12 mx-auto mb-3 opacity-20" />
                     <p>No assets found{typeFilter !== "all" ? ` in the "${typeFilter}" category` : ""}.</p>
                   </td>
@@ -231,6 +450,81 @@ export default function ContentLibrary() {
           </table>
         </div>
       </Card>
+
+      <Dialog open={detailContentId != null} onOpenChange={(open) => !open && setDetailContentId(null)}>
+        <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto border-border/50 bg-card/95 backdrop-blur-xl">
+          <DialogHeader>
+            <DialogTitle>Web detection matches</DialogTitle>
+            <DialogDescription>
+              Results from SerpAPI search and text similarity. Scrape-assisted when snippets are weak.
+            </DialogDescription>
+          </DialogHeader>
+          {detailResult && (
+            <div className="space-y-3 text-sm">
+              <div className="rounded-lg border border-border/50 bg-background/40 p-3 space-y-2">
+                <div className="flex justify-between gap-2">
+                  <span className="text-muted-foreground">Overall</span>
+                  <span className="font-medium capitalize">{detailResult.status.replace("_", " ")}</span>
+                </div>
+                {detailResult.scannedAt ? (
+                  <div className="flex justify-between gap-2 text-xs">
+                    <span className="text-muted-foreground">Scanned</span>
+                    <span className="font-mono text-muted-foreground">
+                      {format(new Date(detailResult.scannedAt), "MMM d, yyyy HH:mm")}
+                    </span>
+                  </div>
+                ) : null}
+                <div className="pt-1">
+                  <span className="text-muted-foreground block mb-1">Fingerprint</span>
+                  <code className="text-xs break-all text-muted-foreground">{detailResult.fingerprint || "—"}</code>
+                </div>
+                {detailResult.warnings?.length ? (
+                  <div className="text-xs text-amber-500/90 space-y-1">
+                    {detailResult.warnings.map((w, i) => (
+                      <p key={i}>{w}</p>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+
+              {detailResult.matches.length === 0 ? (
+                <p className="text-muted-foreground text-sm">No above-threshold URL matches for this asset.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {detailResult.matches.map((m, idx) => (
+                    <li
+                      key={`${m.url}-${idx}`}
+                      className={`rounded-lg border p-3 text-sm ${matchRiskClass(m)}`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <div className="font-medium line-clamp-2">{m.title || "Untitled result"}</div>
+                          <a
+                            href={m.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-xs text-primary break-all hover:underline inline-flex items-center gap-1 mt-1"
+                          >
+                            <ExternalLink className="w-3 h-3 shrink-0" />
+                            {m.url}
+                          </a>
+                          {m.snippet ? (
+                            <p className="text-xs text-muted-foreground mt-2 line-clamp-3">{m.snippet}</p>
+                          ) : null}
+                        </div>
+                        <div className="text-right shrink-0">
+                          <div className="font-mono font-semibold">{m.similarity}%</div>
+                          <div className="text-[10px] uppercase tracking-wide opacity-80">{m.status}</div>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

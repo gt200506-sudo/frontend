@@ -8,6 +8,7 @@ import web3Router from "./web3";
 import uploadRouter from "./upload";
 import piracyRouter from "./piracy";
 import userRouter from "./user";
+import detectContentRouter from "./detectContent";
 
 const router: IRouter = Router();
 
@@ -25,5 +26,6 @@ router.use(web3Router);
 router.use(uploadRouter);
 router.use(piracyRouter);
 router.use(userRouter);
+router.use(detectContentRouter);
 
 export default router;
