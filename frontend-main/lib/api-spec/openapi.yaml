@@ -366,6 +366,11 @@ components:
           enum: [active, monitoring, archived]
         similarityThreshold:
           type: number
+        libraryMatches:
+          type: object
+          description: Last web detection scan payload (matches, fingerprint, scannedAt)
+          nullable: true
+          additionalProperties: true
       required: [id, title, type, contentHash, author, organization, registeredAt, detectionCount, status, similarityThreshold]
 
     RegisterContentRequest:

@@ -42,6 +42,8 @@ export interface Content {
   detectionCount: number;
   status: ContentStatus;
   similarityThreshold: number;
+  /** Last SerpAPI web scan result when available */
+  libraryMatches?: Record<string, unknown>;
 }
 
 export type RegisterContentRequestType =

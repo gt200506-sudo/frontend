@@ -18,6 +18,7 @@ export function mapSupabaseContentRow(c: Record<string, unknown>) {
         ? created.toISOString()
         : new Date(String(created)).toISOString();
 
+  const libraryMatches = c.library_matches;
   return {
     id: String(c.id),
     title: String(c.file_name ?? ""),
@@ -35,5 +36,9 @@ export function mapSupabaseContentRow(c: Record<string, unknown>) {
     similarityThreshold: 0.85,
     excerpt: undefined,
     aiAnalysis: null,
+    libraryMatches:
+      libraryMatches && typeof libraryMatches === "object"
+        ? (libraryMatches as Record<string, unknown>)
+        : undefined,
   };
 }
