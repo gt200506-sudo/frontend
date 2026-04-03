@@ -2,112 +2,233 @@ import { Router } from "express";
 import multer from "multer";
 import axios from "axios";
 import FormData from "form-data";
-import { createHash, randomUUID } from "crypto";
-import { db, contentTable } from "@workspace/db";
+import fs from "node:fs";
+import { unlink } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import { randomUUID } from "crypto";
+import { db, contentTable, uploadedContentTable } from "@workspace/db";
+import { getSupabaseServer } from "../lib/supabase";
+import { perceptualHashImage, perceptualHashVideo, sha256Hex, textFingerprintPdf } from "../lib/piracyDetection";
+import { scanContent } from "../services/aiScanner";
 
 const router = Router();
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: (_req, _file, cb) => cb(null, os.tmpdir()),
+    filename: (_req, file, cb) => cb(null, `${Date.now()}-${randomUUID()}-${file.originalname}`),
+  }),
+  limits: {
+    fileSize: 25 * 1024 * 1024, // 25MB
+  },
+});
+const ALLOWED_MIME_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "application/pdf",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "text/plain",
+]);
 
-const PINATA_API_KEY = process.env.PINATA_API_KEY;
-const PINATA_API_SECRET = process.env.PINATA_API_SECRET;
+function getPinataEnv() {
+  return {
+    jwt: process.env.PINATA_JWT,
+    apiKey: process.env.PINATA_API_KEY,
+    apiSecret: process.env.PINATA_SECRET_API_KEY || process.env.PINATA_API_SECRET,
+  };
+}
 
-router.post("/upload", upload.single("file"), async (req, res) => {
-  try {
-    const file = req.file;
-    if (!file) {
-      return res.status(400).json({ error: "No file uploaded" });
+async function uploadToPinata(filePath: string, fileName: string, ownerId: string, sha256: string) {
+  const { jwt: PINATA_JWT, apiKey: PINATA_API_KEY, apiSecret: PINATA_API_SECRET } = getPinataEnv();
+  const data = new FormData();
+  data.append("file", fs.createReadStream(filePath), { filename: fileName });
+  data.append("pinataMetadata", JSON.stringify({ name: fileName, keyvalues: { ownerId, sha256 } }));
+  data.append("pinataOptions", JSON.stringify({ cidVersion: 1 }));
+
+  const headers = {
+    ...data.getHeaders(),
+    ...(PINATA_JWT
+      ? { Authorization: `Bearer ${PINATA_JWT}` }
+      : { pinata_api_key: PINATA_API_KEY ?? "", pinata_secret_api_key: PINATA_API_SECRET ?? "" }),
+  };
+
+  if (!PINATA_JWT && (!PINATA_API_KEY || !PINATA_API_SECRET)) {
+    const err = new Error("Pinata credentials are missing");
+    (err as any).statusCode = 500;
+    throw err;
+  }
+
+  const res = await axios.post("https://api.pinata.cloud/pinning/pinFileToIPFS", data, {
+    maxBodyLength: Infinity,
+    headers,
+  });
+  return res.data;
+}
+
+router.post("/content/upload", (req, res) => {
+  upload.single("file")(req, res, async (uploadErr: any) => {
+    if (uploadErr) {
+      if (uploadErr?.code === "LIMIT_FILE_SIZE") {
+        return res.status(413).json({ error: "File size too large. Max upload size is 25MB." });
+      }
+      return res.status(400).json({ error: "Upload failed", details: uploadErr?.message ?? String(uploadErr) });
     }
+    try {
+      const file = (req as any).file;
+      if (!file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+      if (!ALLOWED_MIME_TYPES.has(file.mimetype)) {
+        return res.status(400).json({ error: "Unsupported file type. Allowed: JPG, PNG, PDF, DOCX, TXT." });
+      }
 
-    const userId = (req as any).userId;
-    if (!userId) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
+      const userId = (req as any).userId;
+      if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
 
-    // 1. Generate SHA-256 hash
-    const hash = createHash("sha256").update(file.buffer).digest("hex");
+      // Read uploaded file from disk for hash/fingerprint + Pinata stream upload.
+      const fileBuffer = await fs.promises.readFile(file.path);
+      const hash = await sha256Hex(fileBuffer);
 
-    // 2. Upload to Pinata
-    let ipfsHash = "mock-ipfs-hash-" + randomUUID().slice(0, 8); // Fallback for dev without keys
-    
-    if (PINATA_API_KEY && PINATA_API_SECRET) {
-      const formData = new FormData();
-      formData.append("file", file.buffer, {
-        filename: file.originalname,
-        contentType: file.mimetype,
-      });
-
-      const metadata = JSON.stringify({
-        name: file.originalname,
-        keyvalues: {
-          sha256: hash,
-          ownerId: userId,
-        },
-      });
-      formData.append("pinataMetadata", metadata);
-
-      const options = JSON.stringify({
-        cidVersion: 0,
-      });
-      formData.append("pinataOptions", options);
+      let perceptualHash: string | null = null;
+      let textFingerprint: string | null = null;
 
       try {
-        const response = await axios.post(
-          "https://api.pinata.cloud/pinning/pinFileToIPFS",
-          formData,
-          {
-            maxBodyLength: Infinity,
-            headers: {
-              ...formData.getHeaders(),
-              pinata_api_key: PINATA_API_KEY,
-              pinata_secret_api_key: PINATA_API_SECRET,
-            },
-          }
-        );
-        ipfsHash = response.data.IpfsHash;
-      } catch (pinataError: any) {
-        console.error("Pinata upload failed:", pinataError.response?.data || pinataError.message);
-        return res.status(500).json({ error: "IPFS upload failed", details: pinataError.response?.data || pinataError.message });
+        if (file.mimetype?.startsWith("image/")) {
+          perceptualHash = await perceptualHashImage(fileBuffer);
+        } else if (file.mimetype?.startsWith("video/")) {
+          perceptualHash = await perceptualHashVideo(fileBuffer, file.mimetype, file.originalname);
+        }
+      } catch (e) {
+        console.warn("Perceptual hash computation failed (upload):", (e as any)?.message ?? e);
       }
-    } else {
-      console.warn("Pinata API keys missing, using mock IPFS hash.");
+
+      try {
+        if ((file.mimetype ?? "").toLowerCase() === "application/pdf") {
+          textFingerprint = await textFingerprintPdf(fileBuffer);
+        }
+      } catch (e) {
+        console.warn("PDF text fingerprint computation failed (upload):", (e as any)?.message ?? e);
+      }
+
+      const pinataResponse = await uploadToPinata(file.path, path.basename(file.originalname), userId, hash);
+      console.log("Pinata Response:", pinataResponse);
+
+      const ipfsHash = pinataResponse?.IpfsHash;
+      if (!ipfsHash) {
+        return res.status(502).json({ error: "Pinata did not return IpfsHash" });
+      }
+      const gatewayUrl = `https://gateway.pinata.cloud/ipfs/${ipfsHash}`;
+
+      const scanResults = await scanContent(file);
+
+      const supabase = getSupabaseServer();
+      if (supabase) {
+        const rowId = randomUUID();
+        const { error: sbError } = await supabase.from("content").insert({
+          id: rowId,
+          user_id: userId,
+          file_name: file.originalname,
+          file_type: file.mimetype,
+          ipfs_hash: ipfsHash,
+          gateway_url: gatewayUrl,
+          content_hash: hash,
+        });
+        if (sbError) {
+          console.error("Supabase insert failed:", sbError);
+          return res.status(500).json({
+            error: "Failed to persist content metadata",
+            details: sbError.message,
+          });
+        }
+        return res.status(201).json({
+          success: true,
+          ipfsHash,
+          gatewayUrl,
+          data: {
+            uploadId: null,
+            id: rowId,
+            ipfsHash,
+            gatewayUrl,
+            contentHash: hash,
+            title: file.originalname,
+            fileType: file.mimetype,
+            uploadedAt: new Date().toISOString(),
+            pinSize: pinataResponse?.PinSize ?? null,
+            timestamp: pinataResponse?.Timestamp ?? null,
+            scanResults,
+          },
+        });
+      }
+
+      const [uploadedMeta] = await db
+        .insert(uploadedContentTable)
+        .values({
+          userId,
+          fileName: file.originalname,
+          fileType: file.mimetype,
+          ipfsHash,
+          uploadedAt: new Date(),
+          scanResults,
+        })
+        .returning();
+      const uploadedAt = uploadedMeta?.uploadedAt instanceof Date ? uploadedMeta.uploadedAt : new Date();
+
+      const uuid = randomUUID();
+      const [inserted] = await db
+        .insert(contentTable)
+        .values({
+          uuid,
+          title: file.originalname,
+          type: file.mimetype.startsWith("video") ? "video" : file.mimetype.startsWith("image") ? "image" : "document",
+          description: `Uploaded via ContentGuard IPFS integration`,
+          contentHash: hash,
+          perceptualHash,
+          textFingerprint,
+          fileSize: file.size,
+          author: "Unknown Author",
+          organization: "ContentGuard Community",
+          similarityThreshold: 0.85,
+          status: "active",
+          detectionCount: 0,
+          ipfsHash,
+          ownerId: userId,
+          registeredAt: new Date(),
+        })
+        .returning();
+
+      return res.status(201).json({
+        success: true,
+        ipfsHash,
+        gatewayUrl,
+        data: {
+          uploadId: uploadedMeta?.id ?? null,
+          id: inserted.uuid,
+          ipfsHash: inserted.ipfsHash,
+          gatewayUrl,
+          contentHash: inserted.contentHash,
+          title: inserted.title,
+          fileType: file.mimetype,
+          uploadedAt: uploadedAt.toISOString(),
+          pinSize: pinataResponse?.PinSize ?? null,
+          timestamp: pinataResponse?.Timestamp ?? null,
+          scanResults,
+        },
+      });
+    } catch (error: any) {
+      if (error?.response?.status === 401 || error?.response?.status === 403) {
+        return res.status(401).json({ error: "Pinata authentication failed. Check PINATA_JWT/API keys." });
+      }
+      console.error("Upload error:", error?.response?.data || error?.message || error);
+      return res.status(500).json({ error: "Upload failed", message: error?.message ?? "Unknown error" });
+    } finally {
+      const file = (req as any).file;
+      if (file?.path) {
+        await unlink(file.path).catch(() => undefined);
+      }
     }
-
-    // 3. Store in database
-    const uuid = randomUUID();
-    const [inserted] = await db
-      .insert(contentTable)
-      .values({
-        uuid,
-        title: file.originalname,
-        type: file.mimetype.startsWith("video") ? "video" : file.mimetype.startsWith("image") ? "image" : "document",
-        description: `Uploaded via ContentGuard IPFS integration`,
-        contentHash: hash,
-        fileSize: file.size,
-        author: "Unknown Author", // Could be passed in body
-        organization: "ContentGuard Community",
-        similarityThreshold: 0.85,
-        status: "active",
-        detectionCount: 0,
-        ipfsHash: ipfsHash,
-        ownerId: userId,
-        registeredAt: new Date(),
-      })
-      .returning();
-
-    return res.status(201).json({
-      success: true,
-      data: {
-        id: inserted.uuid,
-        ipfsHash: inserted.ipfsHash,
-        contentHash: inserted.contentHash,
-        title: inserted.title,
-      }
-    });
-
-  } catch (error: any) {
-    console.error("Upload error:", error);
-    return res.status(500).json({ error: "Internal server error", message: error.message });
-  }
+  });
 });
 
 export default router;

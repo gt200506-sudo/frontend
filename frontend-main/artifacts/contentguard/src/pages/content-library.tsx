@@ -5,9 +5,17 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Plus, FileText, Image as ImageIcon, BookOpen, Shield, File, AlignLeft, Video } from "lucide-react";
+import { Search, Plus, FileText, Image as ImageIcon, BookOpen, Shield, File, AlignLeft, Video, ExternalLink } from "lucide-react";
 import { Link } from "wouter";
 import { format } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+
+function getIpfsGatewayUrl(ipfsHash: string | null | undefined): string | null {
+  const cid = ipfsHash?.trim();
+  if (!cid) return null;
+  return `https://gateway.pinata.cloud/ipfs/${cid}`;
+}
 
 const TYPE_FILTERS = [
   { value: "all", label: "All Assets", icon: Shield },
@@ -19,6 +27,7 @@ const TYPE_FILTERS = [
 ];
 
 export default function ContentLibrary() {
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const { data, isLoading } = useListContent({ limit: 50 });
@@ -153,7 +162,6 @@ export default function ContentLibrary() {
                   <tr key={item.id} className="hover:bg-white/[0.02] transition-colors">
                     <td className="px-6 py-4">
                       <div className="font-medium text-foreground">{item.title}</div>
-                      <div className="text-xs text-muted-foreground mt-0.5">{item.author} • {item.contentHash.substring(0, 8)}...</div>
                     </td>
                     <td className="px-6 py-4">
                       <Badge variant="outline" className={getTypeBadgeColor(item.type)}>
@@ -181,9 +189,33 @@ export default function ContentLibrary() {
                       {format(new Date(item.registeredAt), 'MMM d, yyyy')}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <Button variant="ghost" size="sm" className="h-8">
-                        View
-                      </Button>
+                      <div className="flex items-center justify-end">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 gap-1"
+                              onClick={() => {
+                                const gatewayUrl = getIpfsGatewayUrl(item.ipfsHash);
+                                if (!gatewayUrl) {
+                                  toast({
+                                    title: "File not available on IPFS",
+                                    description: "This asset has no IPFS hash.",
+                                    variant: "destructive",
+                                  });
+                                  return;
+                                }
+                                window.open(gatewayUrl, "_blank", "noopener,noreferrer");
+                              }}
+                            >
+                              <ExternalLink className="w-3.5 h-3.5" />
+                              View
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top">Open from IPFS</TooltipContent>
+                        </Tooltip>
+                      </div>
                     </td>
                   </tr>
                 ))

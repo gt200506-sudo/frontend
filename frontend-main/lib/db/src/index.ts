@@ -40,6 +40,8 @@ export const contentTable = createTableProxy("content") as any;
 export const detectionTable = createTableProxy("detection") as any;
 export const alertTable = createTableProxy("alert") as any;
 export const blockchainRecordTable = createTableProxy("blockchain_record") as any;
+export const detectedContentTable = createTableProxy("detected_content") as any;
+export const uploadedContentTable = createTableProxy("uploaded_content") as any;
 
 // ---- Enum creators (mimic drizzle pgEnum – not used at runtime, just for type compat) ----
 export const contentTypeEnum = () => {};
@@ -55,6 +57,8 @@ export const alertSeverityEnum = () => {};
 export type Content = {
   id: number; uuid: string; title: string; type: string;
   description: string | null; contentHash: string; fileSize: number | null;
+  perceptualHash?: string | null;
+  textFingerprint?: string | null;
   author: string; organization: string; blockchainTxHash: string | null;
   ipfsHash: string | null; detectionCount: number; status: string;
   similarityThreshold: number; registeredAt: Date;
@@ -87,6 +91,25 @@ export type BlockchainRecord = {
   network: string; ipfsHash: string; ownerAddress: string; registeredAt: Date;
 };
 
+export type DetectedContent = {
+  id: number;
+  source: string;
+  similarityScore: number;
+  matchedFile: string | null;
+  detectedAt: Date;
+  // ownerId not included intentionally; crawler submissions are system-level.
+};
+
+export type UploadedContent = {
+  id: number;
+  userId: string;
+  fileName: string;
+  fileType: string;
+  ipfsHash: string;
+  uploadedAt: Date;
+  scanResults: string[];
+};
+
 // Insert schemas (no-op Zod-like objects – the routes call .parse() on these for validation)
 function makePassthroughSchema() {
   return { parse: (v: any) => v, omit: () => makePassthroughSchema() };
@@ -95,6 +118,8 @@ export const insertContentSchema = makePassthroughSchema();
 export const insertDetectionSchema = makePassthroughSchema();
 export const insertAlertSchema = makePassthroughSchema();
 export const insertBlockchainRecordSchema = makePassthroughSchema();
+export const insertDetectedContentSchema = makePassthroughSchema();
+export const insertUploadedContentSchema = makePassthroughSchema();
 
 // ---- drizzle-orm compatible helpers ----
 

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRegisterContent } from "@workspace/api-client-react";
 import type { RegisterContentRequestType } from "@workspace/api-client-react";
 
@@ -9,11 +10,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Shield, Fingerprint, UploadCloud, Hexagon, BookOpen, FileText, Image as ImageIcon, File, AlignLeft, Calendar } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Shield, UploadCloud, Hexagon, BookOpen, FileText, Image as ImageIcon, File, AlignLeft, Calendar, ExternalLink, CheckCircle, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import { format } from "date-fns";
+import { useAuth } from "@/context/auth";
 
 const ASSET_TYPES = [
   { value: "course", label: "Online Course", icon: BookOpen, desc: "Video lectures, modules, e-learning content" },
@@ -24,9 +26,12 @@ const ASSET_TYPES = [
 ];
 
 export default function RegisterContent() {
+  const queryClient = useQueryClient();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  const { user } = useAuth();
   const { mutate: register, isPending } = useRegisterContent();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -40,19 +45,122 @@ export default function RegisterContent() {
   });
 
   const registrationTimestamp = format(new Date(), "PPP 'at' p");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadSuccess, setUploadSuccess] = useState<null | { ipfsHash: string; contentHash: string; fileType: string; gatewayUrl: string }>(null);
+
+  const allowedTypes = [
+    "image/jpeg",
+    "image/png",
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "text/plain",
+  ];
+
+  const isImageFile = (file: File) => file.type.startsWith("image/");
+
+  const formatBytes = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+  };
+
+  const updateAssetTypeFromMime = (mimeType: string): RegisterContentRequestType => {
+    if (mimeType.startsWith("image/")) return "image";
+    if (mimeType === "text/plain") return "document";
+    return "document";
+  };
+
+  const handleFileSelected = (file: File | null) => {
+    if (!file) return;
+    if (!allowedTypes.includes(file.type)) {
+      setUploadError("Unsupported file type. Please upload JPG, PNG, PDF, DOCX, or TXT.");
+      return;
+    }
+
+    setUploadError(null);
+    setUploadSuccess(null);
+    setUploadProgress(0);
+    setSelectedFile(file);
+    setPreviewUrl(isImageFile(file) ? URL.createObjectURL(file) : null);
+  };
+
+  const uploadToBackend = async () => {
+    if (!selectedFile || !user) {
+      setUploadError("Please sign in and choose a file.");
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      setUploadError(null);
+      setUploadProgress(15);
+
+      const form = new FormData();
+      form.append("file", selectedFile);
+      const response = await fetch("/api/content/upload", {
+        method: "POST",
+        headers: {
+          "x-user-id": user.email,
+        },
+        body: form,
+      });
+
+      setUploadProgress(70);
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload?.details || payload?.message || payload?.error || "Upload failed");
+      }
+
+      const data = payload?.data;
+      setUploadProgress(100);
+      setUploadSuccess({
+        ipfsHash: data?.ipfsHash || "",
+        contentHash: data?.contentHash || "",
+        fileType: data?.fileType || selectedFile.type,
+        gatewayUrl: data?.gatewayUrl || `https://gateway.pinata.cloud/ipfs/${data?.ipfsHash || ""}`,
+      });
+
+      setFormData((prev) => ({
+        ...prev,
+        title: prev.title || selectedFile.name,
+        type: updateAssetTypeFromMime(data?.fileType || selectedFile.type),
+        contentHash: data?.contentHash || prev.contentHash,
+      }));
+
+      void queryClient.invalidateQueries({ queryKey: ["/api/content"] });
+
+      toast({ title: "Upload complete", description: "File uploaded to IPFS and registered with scan metadata." });
+    } catch (error: any) {
+      setUploadError(error?.message || "Could not upload file.");
+      setUploadProgress(0);
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const generateMockHash = () => {
-    const chars = '0123456789abcdef';
-    let hash = '0x';
-    for (let i = 0; i < 64; i++) hash += chars[Math.floor(Math.random() * chars.length)];
-    setFormData(prev => ({ ...prev, contentHash: hash }));
-    toast({ title: "Hash Generated", description: "Cryptographic fingerprint created for your content." });
+    toast({
+      title: "Use file upload for real hash",
+      description: "Content hash is generated from the actual file during upload.",
+      variant: "destructive",
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (uploadSuccess?.contentHash) {
+      void queryClient.invalidateQueries({ queryKey: ["/api/content"] });
+      toast({ title: "Success", description: "Content uploaded and registered successfully." });
+      setLocation("/content");
+      return;
+    }
     if (!formData.contentHash) {
-      toast({ title: "Error", description: "Please generate or provide a content hash.", variant: "destructive" });
+      toast({ title: "Error", description: "Please upload a file first to generate a content hash.", variant: "destructive" });
       return;
     }
 
@@ -60,6 +168,7 @@ export default function RegisterContent() {
       { data: { ...formData, similarityThreshold: formData.similarityThreshold / 100 } },
       {
         onSuccess: () => {
+          void queryClient.invalidateQueries({ queryKey: ["/api/content"] });
           toast({ title: "Success", description: "Content successfully registered and protected." });
           setLocation("/content");
         },
@@ -80,6 +189,100 @@ export default function RegisterContent() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        <Card className="glass-panel">
+          <CardHeader className="border-b border-border/50 bg-white/[0.01]">
+            <CardTitle className="flex items-center gap-2">
+              <UploadCloud className="w-5 h-5 text-primary" />
+              Upload Asset
+            </CardTitle>
+            <CardDescription>Drag and drop or browse files (JPG, PNG, PDF, DOCX, TXT).</CardDescription>
+          </CardHeader>
+          <CardContent className="p-6 space-y-4">
+            <div
+              role="button"
+              tabIndex={0}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDragging(true);
+              }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsDragging(false);
+                handleFileSelected(e.dataTransfer.files?.[0] ?? null);
+              }}
+              onClick={() => fileInputRef.current?.click()}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") fileInputRef.current?.click();
+              }}
+              className={`rounded-xl border-2 border-dashed p-8 text-center cursor-pointer transition-colors ${
+                isDragging ? "border-primary bg-primary/10" : "border-border/50 hover:border-primary/40"
+              }`}
+            >
+              <UploadCloud className="w-8 h-8 mx-auto text-primary mb-3" />
+              <p className="font-medium">Drop your file here or click to browse</p>
+              <p className="text-xs text-muted-foreground mt-1">Maximum supported types: JPG, PNG, PDF, DOCX, TXT</p>
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                accept=".jpg,.jpeg,.png,.pdf,.docx,.txt"
+                onChange={(e) => handleFileSelected(e.target.files?.[0] ?? null)}
+              />
+            </div>
+
+            {selectedFile && (
+              <div className="p-4 rounded-xl bg-white/[0.02] border border-border/40 space-y-3">
+                {previewUrl ? (
+                  <img src={previewUrl} alt="Preview" className="max-h-44 rounded-lg object-contain border border-border/40" />
+                ) : (
+                  <div className="text-sm text-muted-foreground">
+                    <p className="font-medium text-foreground">{selectedFile.name}</p>
+                    <p>{selectedFile.type || "Unknown type"} • {formatBytes(selectedFile.size)}</p>
+                  </div>
+                )}
+                <div className="flex justify-between items-center gap-3">
+                  <div className="text-xs text-muted-foreground">
+                    {selectedFile.name} • {formatBytes(selectedFile.size)}
+                  </div>
+                  <Button type="button" onClick={uploadToBackend} disabled={isUploading}>
+                    {isUploading ? "Uploading..." : "Upload to IPFS"}
+                  </Button>
+                </div>
+                {(isUploading || uploadProgress > 0) && <Progress value={uploadProgress} />}
+              </div>
+            )}
+
+            {uploadError && (
+              <div className="flex items-center gap-2 text-sm text-destructive">
+                <AlertTriangle className="w-4 h-4" />
+                {uploadError}
+              </div>
+            )}
+
+            {uploadSuccess && (
+              <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
+                <p className="text-sm font-medium text-emerald-400 flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4" />
+                  Upload successful
+                </p>
+                <div className="text-xs text-muted-foreground mt-1">
+                  <p>CID: {uploadSuccess.ipfsHash}</p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="mt-3"
+                  onClick={() => window.open(uploadSuccess.gatewayUrl, "_blank", "noopener,noreferrer")}
+                >
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  View on IPFS
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Asset Type Selector */}
         <Card className="glass-panel">
           <CardHeader className="border-b border-border/50 bg-white/[0.01]">
@@ -180,27 +383,6 @@ export default function RegisterContent() {
                 placeholder="Brief summary of the content, its purpose and scope..."
                 value={formData.description}
                 onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              />
-            </div>
-
-            <div className="p-6 rounded-xl bg-white/[0.02] border border-border/50 space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold flex items-center gap-2">
-                    <Fingerprint className="w-4 h-4 text-accent" />
-                    Cryptographic Fingerprint
-                  </h3>
-                  <p className="text-sm text-muted-foreground">Unique SHA-256 hash derived from file contents.</p>
-                </div>
-                <Button type="button" variant="outline" onClick={generateMockHash} className="bg-background/50">
-                  Generate Hash
-                </Button>
-              </div>
-              <Input
-                readOnly
-                className="font-mono text-sm text-muted-foreground bg-black/20"
-                placeholder="0x..."
-                value={formData.contentHash}
               />
             </div>
 

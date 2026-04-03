@@ -7,6 +7,8 @@ import {
   GetContentParams,
   DeleteContentParams,
 } from "@workspace/api-zod";
+import { getSupabaseServer } from "../lib/supabase";
+import { mapSupabaseContentRow } from "../lib/supabaseContentMap";
 
 const router = Router();
 
@@ -16,10 +18,39 @@ router.get("/content", async (req, res) => {
   const limit = query.limit ?? 20;
   const offset = (page - 1) * limit;
 
-  const userId = (req as any).userId;
-  let baseQuery = db.select().from(contentTable).where(eq(contentTable.ownerId, userId)).orderBy(desc(contentTable.registeredAt));
+  const userId = (req as any).userId as string | null;
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
 
-  const allItems = await baseQuery;
+  const supabase = getSupabaseServer();
+  if (supabase) {
+    const { data, error } = await supabase
+      .from("content")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+
+    console.log("Fetched content:", data);
+
+    if (error) {
+      console.error("Supabase list content error:", error);
+      return res.status(500).json({ error: "Failed to load content", details: error.message });
+    }
+
+    const rows = data ?? [];
+    const mapped = rows.map((row) => mapSupabaseContentRow(row as Record<string, unknown>));
+    const filtered = query.type ? mapped.filter((c) => c.type === query.type) : mapped;
+    const items = filtered.slice(offset, offset + limit);
+
+    return res.json({ items, total: filtered.length, page, limit });
+  }
+
+  const allItems = await db
+    .select()
+    .from(contentTable)
+    .where(eq(contentTable.ownerId, userId))
+    .orderBy(desc(contentTable.registeredAt));
   const filtered = query.type ? allItems.filter((c) => c.type === query.type) : allItems;
   const items = filtered.slice(offset, offset + limit).map((c) => ({
     id: c.uuid,
@@ -47,6 +78,46 @@ router.post("/content", async (req, res) => {
   const body = RegisterContentBody.parse(req.body);
   const uuid = randomUUID();
   const userId = (req as any).userId;
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const supabase = getSupabaseServer();
+  if (supabase) {
+    const { error } = await supabase.from("content").insert({
+      id: uuid,
+      user_id: userId,
+      file_name: body.title,
+      file_type: body.type,
+      ipfs_hash: null,
+      gateway_url: null,
+      content_hash: body.contentHash,
+    });
+    if (error) {
+      console.error("Supabase insert failed:", error);
+      return res.status(500).json({ error: "Failed to save content", details: error.message });
+    }
+
+    return res.status(201).json({
+      id: uuid,
+      title: body.title,
+      type: body.type,
+      description: body.description ?? undefined,
+      contentHash: body.contentHash,
+      fileSize: undefined,
+      author: body.author,
+      organization: body.organization,
+      registeredAt: new Date().toISOString(),
+      blockchainTxHash: null,
+      ipfsHash: null,
+      detectionCount: 0,
+      status: "active",
+      similarityThreshold: body.similarityThreshold ?? 0.85,
+      excerpt: undefined,
+      aiAnalysis: null,
+    });
+  }
+
   const [inserted] = await db
     .insert(contentTable)
     .values({
@@ -64,7 +135,7 @@ router.post("/content", async (req, res) => {
     })
     .returning();
 
-  res.status(201).json({
+  return res.status(201).json({
     id: inserted.uuid,
     title: inserted.title,
     type: inserted.type,
@@ -86,7 +157,28 @@ router.post("/content", async (req, res) => {
 
 router.get("/content/:id", async (req, res) => {
   const userId = (req as any).userId;
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
   const { id } = GetContentParams.parse(req.params);
+
+  const supabase = getSupabaseServer();
+  if (supabase) {
+    const { data, error } = await supabase
+      .from("content")
+      .select("*")
+      .eq("id", id)
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Supabase get content error:", error);
+      return res.status(500).json({ error: "Failed to load content", details: error.message });
+    }
+    if (!data) return res.status(404).json({ error: "Not found" });
+    return res.json(mapSupabaseContentRow(data as Record<string, unknown>));
+  }
+
   const [item] = await db.select().from(contentTable).where(eq(contentTable.uuid, id));
   if (!item || item.ownerId !== userId) return res.status(404).json({ error: "Not found" });
 
@@ -112,7 +204,21 @@ router.get("/content/:id", async (req, res) => {
 
 router.delete("/content/:id", async (req, res) => {
   const userId = (req as any).userId;
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
   const { id } = DeleteContentParams.parse(req.params);
+
+  const supabase = getSupabaseServer();
+  if (supabase) {
+    const { error } = await supabase.from("content").delete().eq("id", id).eq("user_id", userId);
+    if (error) {
+      console.error("Supabase delete error:", error);
+      return res.status(500).json({ error: "Failed to delete content", details: error.message });
+    }
+    return res.status(204).send();
+  }
+
   await db.delete(contentTable).where(eq(contentTable.uuid, id)).where(eq(contentTable.ownerId, userId));
   return res.status(204).send();
 });
