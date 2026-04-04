@@ -22,7 +22,7 @@ import {
   Skull,
   Info,
 } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -40,6 +40,7 @@ import {
   type DetectContentResultItem,
   type DetectContentMatch,
 } from "@/lib/contentDetection";
+import { AUTH_TOKEN_STORAGE_KEY } from "@/lib/authStorage";
 
 function getIpfsGatewayUrl(ipfsHash: string | null | undefined): string | null {
   const cid = ipfsHash?.trim();
@@ -59,6 +60,7 @@ const TYPE_FILTERS = [
 type DetectionPhase = "idle" | "running" | "completed";
 
 export default function ContentLibrary() {
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
@@ -126,9 +128,24 @@ export default function ContentLibrary() {
     return acc;
   }, {} as Record<string, number>);
 
-  const handleStartAIDetection = async () => {
+  const handleDetect = async () => {
+    console.log("Detection started");
+
+    const token = localStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
+    if (!token) {
+      console.warn("[AI Detection] No token in localStorage — cannot call API");
+      toast({
+        title: "Please login first",
+        description: "Your session has no access token. Sign in again to run detection.",
+        variant: "destructive",
+      });
+      setLocation("/signin");
+      return;
+    }
+
     const ids = (data?.items ?? []).map((i) => i.id);
     if (!ids.length) {
+      console.warn("[AI Detection] No content IDs — add assets to the library first");
       toast({
         title: "No content to scan",
         description: "Upload or register assets first.",
@@ -136,10 +153,14 @@ export default function ContentLibrary() {
       });
       return;
     }
+
+    console.log("[AI Detection] POST /api/detect-content", { contentIds: ids });
+
     setDetectionPhase("running");
     setDetectionById({});
     try {
       const res = await startAIDetection({ contentIds: ids });
+      console.log("Detection result:", res);
       setDetectionById((prev) => ({
         ...prev,
         ...itemsToResultMap(res.items, res.processedAt),
@@ -177,6 +198,7 @@ export default function ContentLibrary() {
         });
       }
     } catch (e: unknown) {
+      console.error("Detection error:", e);
       setDetectionPhase("idle");
       const msg = e instanceof Error ? e.message : "Request failed";
       toast({
@@ -272,8 +294,8 @@ export default function ContentLibrary() {
             </div>
             <Button
               type="button"
-              onClick={() => void handleStartAIDetection()}
-              disabled={detectionPhase === "running" || isLoading}
+              onClick={() => void handleDetect()}
+              disabled={detectionPhase === "running"}
               className="relative overflow-hidden bg-gradient-to-r from-primary via-primary to-accent text-primary-foreground shadow-lg shadow-primary/30 hover:opacity-[0.98] border-0"
             >
               <span className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent pointer-events-none" />

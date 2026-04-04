@@ -1,4 +1,5 @@
-import { customFetch } from "@workspace/api-client-react/custom-fetch";
+import { customFetch } from "@workspace/api-client-react";
+import { AUTH_TOKEN_STORAGE_KEY } from "@/lib/authStorage";
 
 export type DetectContentMatch = {
   url: string;
@@ -99,6 +100,12 @@ export async function startAIDetection(params?: {
   contentIds?: string[];
   hashes?: string[];
 }): Promise<DetectContentResponse> {
+  const token = localStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
+  console.log("[detect-content] Sending POST /api/detect-content", {
+    hasToken: Boolean(token),
+    body: params ?? {},
+  });
+
   return customFetch<DetectContentResponse>("/api/detect-content", {
     method: "POST",
     body: JSON.stringify(params ?? {}),

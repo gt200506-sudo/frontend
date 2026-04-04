@@ -119,6 +119,26 @@ export type ScrapedPage = {
   imageUrls: string[];
 };
 
+/** Prefer main article regions (Wikipedia, blogs, docs) over chrome. */
+function extractVisibleArticleText($: cheerio.CheerioAPI): string {
+  const selectors = [
+    "#mw-content-text .mw-parser-output",
+    "#mw-content-text",
+    "article",
+    "main",
+    '[role="main"]',
+    "#content article",
+    "#content",
+    "body",
+  ];
+  for (const sel of selectors) {
+    const el = $(sel).first();
+    const t = el.text().trim();
+    if (el.length && t.length > 120) return t;
+  }
+  return $("body").text();
+}
+
 export async function scrapePage(url: string): Promise<ScrapedPage | null> {
   try {
     const { data: html, status } = await axios.get<string>(url, {
@@ -133,8 +153,14 @@ export async function scrapePage(url: string): Promise<ScrapedPage | null> {
     if (status >= 400) return null;
 
     const $ = cheerio.load(html);
-    $("script, style, noscript, svg").remove();
-    const text = $("body").text().replace(/\s+/g, " ").trim().slice(0, 80_000);
+    $(
+      "script, style, noscript, svg, iframe, template, " +
+        "header, footer, nav, aside, " +
+        '[role="navigation"], [role="banner"], [role="contentinfo"], ' +
+        ".advertisement, .ad, #footer, #header, .sidebar, .nav",
+    ).remove();
+
+    const text = extractVisibleArticleText($).replace(/\s+/g, " ").trim().slice(0, 80_000);
 
     const imageUrls: string[] = [];
     $('meta[property="og:image"]').each((_, el) => {
