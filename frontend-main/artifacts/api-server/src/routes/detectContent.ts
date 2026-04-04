@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db, contentTable, eq } from "@workspace/db";
 import { getSupabaseServer } from "../lib/supabase";
-import { scanSingleLibraryItem, type LibraryScanItemResult } from "../services/libraryWebDetection";
+import { runWebDetection, type LibraryScanItemResult } from "../services/libraryWebDetection";
 
 const router = Router();
 
@@ -21,6 +21,8 @@ type ContentRowInput = {
   file_name: string;
   content_hash: string | null;
   text_snippet: string | null;
+  /** Supabase `full_text` or Drizzle `extracted_full_text` — preferred for detection. */
+  full_text: string | null;
   file_type: string | null;
   perceptual_hash: string | null;
 };
@@ -103,7 +105,7 @@ router.post("/detect-content", async (req, res) => {
     if (supabase) {
       const { data, error } = await supabase
         .from("content")
-        .select("id, file_name, content_hash, text_snippet, file_type, perceptual_hash, ipfs_hash")
+        .select("id, file_name, content_hash, text_snippet, full_text, file_type, perceptual_hash, ipfs_hash")
         .eq("user_id", userId);
 
       if (error) {
@@ -117,6 +119,7 @@ router.post("/detect-content", async (req, res) => {
         file_name: String(r.file_name ?? ""),
         content_hash: (r.content_hash as string | null) ?? null,
         text_snippet: (r.text_snippet as string | null) ?? null,
+        full_text: (r.full_text as string | null) ?? null,
         file_type: (r.file_type as string | null) ?? null,
         perceptual_hash: (r.perceptual_hash as string | null) ?? null,
       }));
@@ -138,6 +141,7 @@ router.post("/detect-content", async (req, res) => {
         file_name: String(c.title ?? ""),
         content_hash: c.contentHash != null ? String(c.contentHash) : null,
         text_snippet: (c.description as string | null) ?? null,
+        full_text: c.extractedFullText != null ? String(c.extractedFullText) : null,
         file_type:
           c.type === "image"
             ? "image/jpeg"
@@ -159,10 +163,16 @@ router.post("/detect-content", async (req, res) => {
     const truncated = totalEligible > MAX_BATCH;
     rows = rows.slice(0, MAX_BATCH);
 
+    console.log("🚀 NEW DETECTION PIPELINE RUNNING");
+    console.log("[detect-content] batch", { batchSize: rows.length, truncated });
+
+    const scanResults = await runWebDetection(rows);
+
     const items: DetectContentItemResponse[] = [];
 
-    for (const row of rows) {
-      const scan = await scanSingleLibraryItem(row);
+    for (let i = 0; i < scanResults.length; i++) {
+      const scan = scanResults[i]!;
+      const row = rows[i]!;
       const respItem = toResponseItem(scan);
       items.push(respItem);
 

@@ -30,6 +30,31 @@ export type LibraryScanItemResult = {
   warnings: string[];
 };
 
+/** Row shape from Supabase/Drizzle before web detection. */
+export type LibraryContentRow = {
+  id: string;
+  file_name: string;
+  content_hash: string | null;
+  text_snippet: string | null;
+  /** Long extracted body (Supabase `full_text` / Drizzle `extracted_full_text`). */
+  full_text?: string | null;
+  file_type: string | null;
+  perceptual_hash: string | null;
+};
+
+const MAX_ASSET_TEXT_FOR_DETECTION = 80_000;
+
+/**
+ * Run SerpAPI + chunk/scrape similarity for each library row (batch entry point for /api/detect-content).
+ */
+export async function runWebDetection(rows: LibraryContentRow[]): Promise<LibraryScanItemResult[]> {
+  const results: LibraryScanItemResult[] = [];
+  for (const row of rows) {
+    results.push(await scanSingleLibraryItem(row));
+  }
+  return results;
+}
+
 const SCRAPE_DELAY_MS = 450;
 const MAX_QUERIES_PER_ASSET = 3;
 const MAX_ORGANIC = 10;
@@ -233,26 +258,27 @@ async function maybeVisualBoost(
 /**
  * Run SerpAPI + chunk matching for one content row (metadata from DB).
  */
-export async function scanSingleLibraryItem(row: {
-  id: string;
-  file_name: string;
-  content_hash: string | null;
-  text_snippet: string | null;
-  file_type: string | null;
-  perceptual_hash: string | null;
-}): Promise<LibraryScanItemResult> {
+export async function scanSingleLibraryItem(row: LibraryContentRow): Promise<LibraryScanItemResult> {
   const contentId = String(row.id);
   const fileName = String(row.file_name ?? "untitled");
   const contentHash = String(row.content_hash ?? "");
   const textSnippet = row.text_snippet;
+  const fullText = row.full_text ?? null;
+  const assetText = normalizeText((fullText || textSnippet) ?? "").slice(0, MAX_ASSET_TEXT_FOR_DETECTION);
   const perceptualHash = row.perceptual_hash;
   const fileType = String(row.file_type ?? "");
   const isImageAsset = fileType.startsWith("image/");
 
-  const fingerprint = fingerprintForRow(contentId, fileName, contentHash, textSnippet, perceptualHash);
+  const fingerprint = fingerprintForRow(
+    contentId,
+    fileName,
+    contentHash,
+    assetText || textSnippet,
+    perceptualHash,
+  );
   const warnings: string[] = [];
-  const chunks = extractContentChunks(textSnippet, fileName);
-  const queriesUsed = buildSearchQueries(fileName, textSnippet, contentHash);
+  const chunks = extractContentChunks(assetText || null, fileName);
+  const queriesUsed = buildSearchQueries(fileName, assetText || null, contentHash);
 
   console.log(`[libraryWebDetection] contentId=${contentId} chunks=${chunks.length} queries=${JSON.stringify(queriesUsed)}`);
 
@@ -267,8 +293,10 @@ export async function scanSingleLibraryItem(row: {
     };
   }
 
-  if (chunks.length === 0 && !(textSnippet ?? "").trim()) {
-    warnings.push("No text snippet stored for this asset — extraction/upload may not have saved body text. Matches rely on filename/hash only.");
+  if (chunks.length === 0 && !assetText.trim()) {
+    warnings.push(
+      "No extractable text stored for this asset — upload PDF, TXT, DOCX, or add optional OCR. Matches rely on filename/hash only.",
+    );
   }
 
   const seenUrls = new Set<string>();
@@ -319,7 +347,7 @@ export async function scanSingleLibraryItem(row: {
     }
 
     const { pct: chunkPct, preview } = scoreChunksAgainstResult({
-      chunks: chunks.length ? chunks : [normalizeText(`${fileName}\n${textSnippet ?? ""}`).slice(0, 400)],
+      chunks: chunks.length ? chunks : [normalizeText(`${fileName}\n${assetText}`).slice(0, 400)],
       serpTitle: o.title,
       serpSnippet: o.snippet,
       pageText,
@@ -331,14 +359,6 @@ export async function scanSingleLibraryItem(row: {
       if (visBoost > 0) {
         pct = Math.min(100, pct + visBoost);
       }
-    }
-
-    // Fallback: whole-metadata vs SERP only (weak)
-    if (pct < REPORT_MIN_PCT) {
-      const assetBlob = normalizeText(`${fileName}\n${textSnippet ?? ""}`).slice(0, 4_000);
-      const serpBlob = normalizeText(`${o.title} ${o.snippet}`);
-      const dice = compareTwoStrings(assetBlob, serpBlob);
-      pct = Math.max(pct, Math.round(dice * 100));
     }
 
     console.log(

@@ -52,6 +52,8 @@ async function buildAll() {
       "nodemailer",
       "handlebars",
       "knex",
+      "mammoth",
+      "tesseract.js",
       "typeorm",
       "protobufjs",
       "onnxruntime-node",
