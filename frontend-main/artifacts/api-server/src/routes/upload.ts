@@ -10,7 +10,8 @@ import { randomUUID } from "crypto";
 import { db, contentTable, uploadedContentTable } from "@workspace/db";
 import { getSupabaseServer } from "../lib/supabase";
 import { perceptualHashImage, perceptualHashVideo, sha256Hex, textFingerprintPdf } from "../lib/piracyDetection";
-import { extractPlainTextSnippet, runPiracyDetectionPipeline } from "../services/piracyPipeline";
+import { runPiracyDetectionPipeline } from "../services/piracyPipeline";
+import { prepareTextForContentRow } from "../services/contentTextExtraction";
 
 const router = Router();
 const upload = multer({
@@ -121,7 +122,7 @@ router.post("/content/upload", (req, res) => {
       }
       const gatewayUrl = `https://gateway.pinata.cloud/ipfs/${ipfsHash}`;
 
-      const textSnippet = await extractPlainTextSnippet(fileBuffer, file.mimetype, 400);
+      const preparedText = await prepareTextForContentRow(fileBuffer, file.mimetype, file.originalname);
 
       const supabase = getSupabaseServer();
       if (supabase) {
@@ -135,7 +136,8 @@ router.post("/content/upload", (req, res) => {
           gateway_url: gatewayUrl,
           content_hash: hash,
           perceptual_hash: perceptualHash,
-          text_snippet: textSnippet || null,
+          text_snippet: preparedText.textSnippet,
+          full_text: preparedText.fullText,
           scan_status: "scanning",
           detections: [],
         });
@@ -203,7 +205,12 @@ router.post("/content/upload", (req, res) => {
           uuid,
           title: file.originalname,
           type: file.mimetype.startsWith("video") ? "video" : file.mimetype.startsWith("image") ? "image" : "document",
-          description: `Uploaded via ContentGuard IPFS integration`,
+          description:
+            preparedText.textSnippet ??
+            (preparedText.rejected
+              ? "No extractable text for web detection (use text, PDF, DOCX, or clear image text)."
+              : "Uploaded via ContentGuard IPFS integration"),
+          extractedFullText: preparedText.fullText,
           contentHash: hash,
           perceptualHash,
           textFingerprint,

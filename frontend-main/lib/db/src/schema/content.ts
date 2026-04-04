@@ -15,6 +15,9 @@ export const contentTable = pgTable("content", {
   title: text("title").notNull(),
   type: contentTypeEnum("type").notNull(),
   description: text("description"),
+  /** Long extracted body for detection when not using Supabase `full_text`. */
+  extractedFullText: text("extracted_full_text"),
+  ownerId: text("owner_id"),
   contentHash: text("content_hash").notNull(),
   // Used for piracy similarity detection across visually/textually similar files.
   // These are nullable because older registered content may only have SHA-256.

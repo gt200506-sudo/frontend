@@ -2,9 +2,8 @@ import axios from "axios";
 import { randomUUID } from "crypto";
 import { compareTwoStrings } from "string-similarity";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { PDFParse } from "pdf-parse";
-
 import { db, detectionTable } from "@workspace/db";
+import { extractFullTextForMime } from "./contentTextExtraction";
 import { hammingSimilarity, perceptualHashImage } from "../lib/piracyDetection";
 import { searchWeb, scrapePage } from "./webScanner";
 
@@ -34,37 +33,6 @@ function hammingDistanceBits(a: string, b: string): number | null {
   let d = 0;
   for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) d++;
   return d;
-}
-
-export async function extractPlainTextSnippet(buffer: Buffer, mimeType: string, maxLen: number): Promise<string> {
-  const m = mimeType.toLowerCase();
-  try {
-    if (m.includes("pdf")) {
-      const parser = new PDFParse({ data: buffer });
-      const r = await parser.getText();
-      await parser.destroy().catch(() => undefined);
-      return (r.text ?? "").replace(/\s+/g, " ").trim().slice(0, maxLen);
-    }
-    if (m.startsWith("text/") || m === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
-      const raw = buffer.toString("utf8").replace(/\s+/g, " ").trim();
-      return raw.slice(0, maxLen);
-    }
-  } catch (e) {
-    console.warn("[piracyPipeline] extractPlainTextSnippet:", (e as any)?.message ?? e);
-  }
-  return "";
-}
-
-async function extractPlainTextFull(buffer: Buffer, mimeType: string): Promise<string> {
-  const m = mimeType.toLowerCase();
-  if (m.includes("pdf")) {
-    const parser = new PDFParse({ data: buffer });
-    const r = await parser.getText();
-    await parser.destroy().catch(() => undefined);
-    return (r.text ?? "").replace(/\s+/g, " ").trim();
-  }
-  if (m.startsWith("text/")) return buffer.toString("utf8").replace(/\s+/g, " ").trim();
-  return "";
 }
 
 export function normalizeHost(url: string): string {
@@ -107,7 +75,7 @@ export async function runPiracyDetectionPipeline(args: {
   const now = () => new Date().toISOString();
 
   try {
-    const plain = await extractPlainTextFull(buffer, mimeType);
+    const { fullText: plain } = await extractFullTextForMime(buffer, mimeType);
     const snippet = plain.slice(0, 280);
 
     // --- A) Exact: search for hash / IPFS CID in indexed pages ---
