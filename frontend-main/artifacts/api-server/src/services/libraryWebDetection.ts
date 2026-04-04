@@ -1,6 +1,5 @@
 /**
- * Content Library web detection: SerpAPI search + text similarity (+ optional image pHash).
- * Replace similarity helpers with embeddings later without changing the route contract.
+ * Content Library web detection: SerpAPI search + chunk/substring similarity on scraped pages.
  */
 
 import { createHash } from "node:crypto";
@@ -32,10 +31,14 @@ export type LibraryScanItemResult = {
 };
 
 const SCRAPE_DELAY_MS = 450;
-const MAX_QUERIES_PER_ASSET = 2;
-const MAX_ORGANIC = 6;
-const MAX_SCRAPE = 4;
-const TEXT_THRESHOLD = 0.35;
+const MAX_QUERIES_PER_ASSET = 3;
+const MAX_ORGANIC = 10;
+const MAX_SCRAPE_PER_ASSET = 8;
+const MIN_CHUNK_LEN = 36;
+const MAX_CHUNKS = 6;
+
+/** Dice on whole strings often misses a short copied paragraph inside a long page — use chunks + windows. */
+const REPORT_MIN_PCT = 28;
 
 function riskFromSimilarity(pct: number): MatchRiskLevel {
   if (pct >= 75) return "high";
@@ -47,22 +50,85 @@ function normalizeText(s: string): string {
   return s.replace(/\s+/g, " ").trim().slice(0, 12_000);
 }
 
-/** Build 1–2 search queries from filename + optional text snippet + hash. */
+/** Lowercase, strip punctuation noise for substring checks. */
+function normalizeForMatch(s: string): string {
+  return s
+    .toLowerCase()
+    .normalize("NFKC")
+    .replace(/[\u2018\u2019\u201c\u201d]/g, "'")
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * Extract 1–2 sentence–scale chunks from stored snippet (upload pipeline should persist real text).
+ */
+export function extractContentChunks(textSnippet: string | null, fileName: string): string[] {
+  const raw = (textSnippet ?? "").replace(/\s+/g, " ").trim();
+  const chunks: string[] = [];
+
+  const sentences = raw.split(/(?<=[.!?])\s+/).map((s) => s.trim()).filter(Boolean);
+  for (const s of sentences) {
+    if (s.length >= MIN_CHUNK_LEN) chunks.push(s.slice(0, 320));
+  }
+
+  if (chunks.length < 2 && raw.length >= MIN_CHUNK_LEN) {
+    chunks.unshift(raw.slice(0, 240));
+  }
+
+  if (chunks.length < 3 && raw.length > MIN_CHUNK_LEN) {
+    for (let i = 0; i < raw.length && chunks.length < MAX_CHUNKS; i += 100) {
+      const w = raw.slice(i, i + 140).trim();
+      if (w.length >= MIN_CHUNK_LEN) chunks.push(w);
+    }
+  }
+
+  const titleBase = fileName.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim();
+  if (titleBase.length > 14 && chunks.length < MAX_CHUNKS) {
+    chunks.push(titleBase.slice(0, 120));
+  }
+
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const c of chunks) {
+    const t = c.trim();
+    if (t.length < MIN_CHUNK_LEN) continue;
+    const key = t.slice(0, 80);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(t);
+  }
+  if (out.length === 0 && raw.length >= 20) {
+    out.push(raw.slice(0, Math.min(400, raw.length)));
+  }
+  return out.slice(0, MAX_CHUNKS);
+}
+
+/** Build SerpAPI queries from filename + meaningful chunks (quoted phrases help exact-match sources). */
 export function buildSearchQueries(fileName: string, textSnippet: string | null, contentHash: string): string[] {
-  const base = fileName.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim();
-  const words = base.split(/\s+/).filter((w) => w.length > 2).slice(0, 5);
-  const keywordQ = words.length ? `"${words.slice(0, 3).join(" ")}"` : `"${fileName.slice(0, 40)}"`;
+  const chunks = extractContentChunks(textSnippet, fileName);
   const queries: string[] = [];
-  const sn = (textSnippet ?? "").replace(/\s+/g, " ").trim();
-  if (sn.length > 24) {
-    queries.push(`${keywordQ} ${sn.slice(0, 100)}`);
-  } else {
-    queries.push(keywordQ);
+  const stem = fileName.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim();
+
+  if (chunks[0]) {
+    const q = chunks[0].slice(0, 110);
+    queries.push(q.includes(" ") ? `"${q}"` : q);
   }
-  if (contentHash.length >= 16) {
-    queries.push(`${keywordQ} ${contentHash.slice(0, 16)}`);
+  if (chunks[1]) {
+    queries.push(`${stem.slice(0, 48)} ${chunks[1].slice(0, 90)}`);
   }
-  return [...new Set(queries)].slice(0, MAX_QUERIES_PER_ASSET);
+  if (chunks[2] && queries.length < MAX_QUERIES_PER_ASSET) {
+    queries.push(chunks[2].slice(0, 100));
+  }
+  if (queries.length === 0 && stem.length > 3) {
+    queries.push(`"${stem.slice(0, 80)}"`);
+  }
+  if (contentHash.length >= 16 && queries.length < MAX_QUERIES_PER_ASSET) {
+    queries.push(`${stem} ${contentHash.slice(0, 16)}`);
+  }
+
+  return [...new Set(queries.filter(Boolean))].slice(0, MAX_QUERIES_PER_ASSET);
 }
 
 function fingerprintForRow(
@@ -75,6 +141,66 @@ function fingerprintForRow(
   return createHash("sha256")
     .update([contentId, fileName, contentHash, textSnippet ?? "", perceptualHash ?? ""].join("|"))
     .digest("hex");
+}
+
+/** Max Dice similarity of chunk against sliding windows of the page (handles long articles). */
+function bestDiceChunkAgainstPage(chunkNorm: string, pageNorm: string): number {
+  const c = chunkNorm.slice(0, 240);
+  if (!c.length) return 0;
+  if (pageNorm.length <= c.length) return compareTwoStrings(c, pageNorm);
+
+  let best = 0;
+  const winLen = Math.min(Math.max(c.length * 2, 180), 700);
+  const limit = Math.min(pageNorm.length, 22_000);
+  for (let i = 0; i + winLen <= limit; i += 95) {
+    const win = pageNorm.slice(i, i + winLen);
+    best = Math.max(best, compareTwoStrings(c, win));
+  }
+  return best;
+}
+
+/**
+ * Score uploaded chunks vs Serp snippet + full page text: substring wins, else Dice on windows.
+ */
+function scoreChunksAgainstResult(args: {
+  chunks: string[];
+  serpTitle: string;
+  serpSnippet: string;
+  pageText: string | null;
+}): { pct: number; preview?: string } {
+  const { chunks, serpTitle, serpSnippet, pageText } = args;
+  const serpNorm = normalizeForMatch(`${serpTitle} ${serpSnippet}`);
+  const pageNorm = pageText ? normalizeForMatch(pageText) : "";
+
+  let bestPct = 0;
+  let preview: string | undefined;
+
+  for (const chunk of chunks) {
+    const cRaw = chunk.trim();
+    const c = normalizeForMatch(cRaw);
+    if (c.length < 24) continue;
+
+    // Strong: long substring appears on page (typical copy-paste / Wikipedia)
+    if (pageNorm.length >= c.length && pageNorm.includes(c)) {
+      return { pct: 96, preview: cRaw.slice(0, 200) };
+    }
+    const prefix = c.slice(0, Math.min(72, c.length));
+    if (prefix.length >= 32 && pageNorm.includes(prefix)) {
+      bestPct = Math.max(bestPct, 90);
+      preview = preview ?? cRaw.slice(0, 200);
+    }
+
+    if (pageNorm.length) {
+      const dicePage = bestDiceChunkAgainstPage(c, pageNorm);
+      bestPct = Math.max(bestPct, Math.round(dicePage * 100));
+      if (dicePage >= 0.35) preview = preview ?? cRaw.slice(0, 160);
+    }
+
+    const diceSerp = compareTwoStrings(c.slice(0, 200), serpNorm);
+    bestPct = Math.max(bestPct, Math.round(diceSerp * 100));
+  }
+
+  return { pct: Math.min(100, bestPct), preview };
 }
 
 async function maybeVisualBoost(
@@ -105,7 +231,7 @@ async function maybeVisualBoost(
 }
 
 /**
- * Run SerpAPI + similarity for one content row (metadata from DB).
+ * Run SerpAPI + chunk matching for one content row (metadata from DB).
  */
 export async function scanSingleLibraryItem(row: {
   id: string;
@@ -125,7 +251,10 @@ export async function scanSingleLibraryItem(row: {
 
   const fingerprint = fingerprintForRow(contentId, fileName, contentHash, textSnippet, perceptualHash);
   const warnings: string[] = [];
+  const chunks = extractContentChunks(textSnippet, fileName);
   const queriesUsed = buildSearchQueries(fileName, textSnippet, contentHash);
+
+  console.log(`[libraryWebDetection] contentId=${contentId} chunks=${chunks.length} queries=${JSON.stringify(queriesUsed)}`);
 
   if (!process.env.SERPAPI_KEY) {
     warnings.push("SERPAPI_KEY not set — configure SerpAPI for live web search.");
@@ -138,15 +267,17 @@ export async function scanSingleLibraryItem(row: {
     };
   }
 
-  const assetText = normalizeText(
-    `${fileName}\n${textSnippet ?? ""}\n${contentHash.slice(0, 32)}`,
-  );
+  if (chunks.length === 0 && !(textSnippet ?? "").trim()) {
+    warnings.push("No text snippet stored for this asset — extraction/upload may not have saved body text. Matches rely on filename/hash only.");
+  }
 
   const seenUrls = new Set<string>();
   const organicAccum: { link: string; title: string; snippet: string }[] = [];
 
   for (const q of queriesUsed) {
+    console.log(`[libraryWebDetection] SerpAPI google q=${q.slice(0, 120)}${q.length > 120 ? "…" : ""}`);
     const g = await serpApiOrganicResults(q, "google");
+    console.log(`[libraryWebDetection] google organic_results: ${g.length} URLs`);
     for (const o of g) {
       if (!seenUrls.has(o.link)) {
         seenUrls.add(o.link);
@@ -156,6 +287,7 @@ export async function scanSingleLibraryItem(row: {
     await delayBetweenSearches();
     if (organicAccum.length < 4) {
       const b = await serpApiOrganicResults(q, "bing");
+      console.log(`[libraryWebDetection] bing organic_results: ${b.length} URLs`);
       for (const o of b) {
         if (!seenUrls.has(o.link)) {
           seenUrls.add(o.link);
@@ -170,36 +302,64 @@ export async function scanSingleLibraryItem(row: {
   const topOrganic = organicAccum.slice(0, MAX_ORGANIC);
   const matches: LibraryMatch[] = [];
 
-  for (let i = 0; i < topOrganic.length; i++) {
+  for (let i = 0; i < Math.min(topOrganic.length, MAX_SCRAPE_PER_ASSET); i++) {
     const o = topOrganic[i];
-    const serpBlob = normalizeText(`${o.title} ${o.snippet}`);
-    let textSim = compareTwoStrings(assetText.slice(0, 8_000), serpBlob);
-    if (textSim < TEXT_THRESHOLD && i < 4) {
-      await delayBetweenSearches(SCRAPE_DELAY_MS);
+    await delayBetweenSearches(i === 0 ? 120 : SCRAPE_DELAY_MS);
+
+    let pageText: string | null = null;
+    let imageUrls: string[] = [];
+    try {
       const page = await scrapePage(o.link);
       if (page?.text) {
-        const pg = normalizeText(page.text.slice(0, 8_000));
-        textSim = Math.max(textSim, compareTwoStrings(assetText.slice(0, 8_000), pg));
-        const visBoost = await maybeVisualBoost(perceptualHash, isImageAsset, page.imageUrls);
-        if (visBoost > 0) {
-          textSim = Math.min(1, textSim + visBoost / 100);
-        }
+        pageText = page.text;
+        imageUrls = page.imageUrls ?? [];
+      }
+    } catch (e) {
+      console.warn(`[libraryWebDetection] scrape error ${o.link}`, e);
+    }
+
+    const { pct: chunkPct, preview } = scoreChunksAgainstResult({
+      chunks: chunks.length ? chunks : [normalizeText(`${fileName}\n${textSnippet ?? ""}`).slice(0, 400)],
+      serpTitle: o.title,
+      serpSnippet: o.snippet,
+      pageText,
+    });
+
+    let pct = chunkPct;
+    if (pageText && isImageAsset) {
+      const visBoost = await maybeVisualBoost(perceptualHash, isImageAsset, imageUrls);
+      if (visBoost > 0) {
+        pct = Math.min(100, pct + visBoost);
       }
     }
 
-    const pct = Math.round(Math.min(100, textSim * 100));
-    if (pct < 30) continue;
+    // Fallback: whole-metadata vs SERP only (weak)
+    if (pct < REPORT_MIN_PCT) {
+      const assetBlob = normalizeText(`${fileName}\n${textSnippet ?? ""}`).slice(0, 4_000);
+      const serpBlob = normalizeText(`${o.title} ${o.snippet}`);
+      const dice = compareTwoStrings(assetBlob, serpBlob);
+      pct = Math.max(pct, Math.round(dice * 100));
+    }
+
+    console.log(
+      `[libraryWebDetection] url=${o.link} scraped=${Boolean(pageText)} similarity=${pct}%` +
+        (preview ? ` preview="${preview.slice(0, 80)}…"` : ""),
+    );
+
+    if (pct < REPORT_MIN_PCT) continue;
 
     matches.push({
       url: o.link,
       similarity: pct,
       status: riskFromSimilarity(pct),
       title: o.title,
-      snippet: o.snippet,
+      snippet: preview ?? o.snippet,
     });
   }
 
   matches.sort((a, b) => b.similarity - a.similarity);
+
+  console.log(`[libraryWebDetection] contentId=${contentId} matches=${matches.length} (from ${topOrganic.length} organic URLs)`);
 
   return {
     contentId,

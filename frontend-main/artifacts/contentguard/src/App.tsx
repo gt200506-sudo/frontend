@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { Layout } from "@/components/layout";
-import { AuthProvider, useAuth } from "@/context/auth";
+import { useAuth } from "@/context/auth";
 
 import NotFound from "@/pages/not-found";
 import SignIn from "@/pages/signin";
@@ -90,14 +90,12 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <AuthProvider>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <ErrorBoundary>
-              <Router />
-            </ErrorBoundary>
-          </WouterRouter>
-          <Toaster />
-        </AuthProvider>
+        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+          <ErrorBoundary>
+            <Router />
+          </ErrorBoundary>
+        </WouterRouter>
+        <Toaster />
       </TooltipProvider>
     </QueryClientProvider>
   );

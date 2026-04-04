@@ -90,6 +90,7 @@ const MAX_BATCH = Math.min(
 router.post("/detect-content", async (req, res) => {
   const userId = (req as { userId?: string }).userId;
   if (!userId) {
+    console.warn("[detect-content] 401 Unauthorized: no userId (send Authorization: Bearer or x-user-id)");
     return res.status(401).json({ error: "Unauthorized" });
   }
 
