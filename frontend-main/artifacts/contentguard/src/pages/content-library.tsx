@@ -66,6 +66,10 @@ export default function ContentLibrary() {
   const [typeFilter, setTypeFilter] = useState("all");
   const { data, isLoading, refetch } = useListContent({ limit: 50 });
 
+  useEffect(() => {
+    void refetch();
+  }, [refetch]);
+
   const [detectionPhase, setDetectionPhase] = useState<DetectionPhase>("idle");
   const [detectionById, setDetectionById] = useState<Record<string, DetectContentResultItem>>({});
   const [detailContentId, setDetailContentId] = useState<string | null>(null);

@@ -190,6 +190,29 @@ router.post("/detect-content", async (req, res) => {
           .eq("id", row.id)
           .eq("user_id", userId);
         if (upErr) console.warn("[detect-content] persist library_matches failed:", upErr.message);
+        } else {
+          // Persist to local dev DB so results survive api-server restart.
+          const payload = {
+            scannedAt: new Date().toISOString(),
+            fingerprint: scan.fingerprint,
+            matches: respItem.matches,
+            queriesUsed: scan.queriesUsed,
+            warnings: scan.warnings,
+          };
+
+          try {
+            await db
+              .update(contentTable)
+              .set({
+                // camelCase for local store; api mapping reads both.
+                libraryMatches: payload,
+                detectionCount: (respItem.matches?.length ?? 0),
+              } as any)
+              .where(eq((contentTable as any).uuid, row.id))
+              .where(eq((contentTable as any).ownerId, userId));
+          } catch (e) {
+            console.warn("[detect-content] local persist libraryMatches failed:", (e as Error)?.message ?? e);
+          }
       }
     }
 

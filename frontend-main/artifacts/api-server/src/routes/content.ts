@@ -69,6 +69,8 @@ router.get("/content", async (req, res) => {
     similarityThreshold: c.similarityThreshold,
     excerpt: c.excerpt,
     aiAnalysis: c.aiAnalysis ?? null,
+    // Local dev DB persistence for AI detection results (/api/detect-content).
+    libraryMatches: (c as any).libraryMatches ?? (c as any).library_matches ?? undefined,
   }));
 
   return res.json({ items, total: filtered.length, page, limit });
