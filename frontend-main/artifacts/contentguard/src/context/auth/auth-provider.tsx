@@ -29,12 +29,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    // Ensure API client can attach auth headers immediately on page load,
+    // even before Supabase resolves the in-memory session.
+    setAuthTokenGetter(() => localStorage.getItem(AUTH_TOKEN_STORAGE_KEY));
+    setUserIdGetter(() => {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      try {
+        const storedUser = JSON.parse(raw) as Partial<User> | null;
+        return storedUser?.email ?? storedUser?.id ?? null;
+      } catch {
+        return null;
+      }
+    });
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         if (session.access_token) {
           localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, session.access_token);
         }
-        setUser(mapSupabaseUser(session.user));
+        const mapped = mapSupabaseUser(session.user);
+        setUser(mapped);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(mapped));
       } else {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
@@ -53,10 +69,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (session.access_token) {
           localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, session.access_token);
         }
-        setUser(mapSupabaseUser(session.user));
-        localStorage.removeItem(STORAGE_KEY);
+        const mapped = mapSupabaseUser(session.user);
+        setUser(mapped);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(mapped));
       } else {
         localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
+        localStorage.removeItem(STORAGE_KEY);
         setUser(null);
       }
       setIsLoading(false);
@@ -66,11 +84,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       subscription.unsubscribe();
     };
   }, []);
-
-  useEffect(() => {
-    setAuthTokenGetter(() => localStorage.getItem(AUTH_TOKEN_STORAGE_KEY));
-    setUserIdGetter(() => user?.email ?? user?.id ?? null);
-  }, [user]);
 
   const signIn = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     const match = DEMO_CREDENTIALS.find(c => c.email.toLowerCase() === email.toLowerCase() && c.password === password);

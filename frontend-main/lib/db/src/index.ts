@@ -12,6 +12,8 @@
  */
 
 import { randomUUID } from "crypto";
+import fs from "node:fs";
+import path from "node:path";
 
 // ---- Column reference ----
 
@@ -174,15 +176,68 @@ export function count() {
 
 // ---- In-memory store ----
 
-const store = new Map<object, Row[]>();
+const DB_FILE =
+  process.env.CONTENTGUARD_DB_FILE ||
+  process.env.DB_FILE ||
+  path.resolve(process.cwd(), ".contentguard-dev-db.json");
+
+type PersistedDb = Record<string, Row[]>;
+
+function safeTableName(table: any): string {
+  return String(table?._name || "unknown");
+}
+
+function loadPersisted(): PersistedDb | null {
+  try {
+    if (!fs.existsSync(DB_FILE)) return null;
+    const raw = fs.readFileSync(DB_FILE, "utf8");
+    if (!raw.trim()) return null;
+    const parsed = JSON.parse(raw) as PersistedDb;
+    if (!parsed || typeof parsed !== "object") return null;
+    return parsed;
+  } catch (e) {
+    console.warn("[dev-db] Failed to load DB file:", DB_FILE, e);
+    return null;
+  }
+}
+
+function savePersisted(snapshot: PersistedDb): void {
+  try {
+    const dir = path.dirname(DB_FILE);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(DB_FILE, JSON.stringify(snapshot, null, 2), "utf8");
+  } catch (e) {
+    console.warn("[dev-db] Failed to save DB file:", DB_FILE, e);
+  }
+}
+
+const store = new Map<string, Row[]>();
+
+// Hydrate store once on module load.
+const hydrated = loadPersisted();
+if (hydrated) {
+  for (const [k, v] of Object.entries(hydrated)) {
+    if (Array.isArray(v)) store.set(k, v);
+  }
+  console.log("[dev-db] Loaded persisted data from", DB_FILE);
+}
+
+function persistStore(): void {
+  const snapshot: PersistedDb = {};
+  for (const [k, v] of store.entries()) snapshot[k] = v;
+  savePersisted(snapshot);
+}
 
 function getRows(table: object): Row[] {
-  if (!store.has(table)) store.set(table, []);
-  return store.get(table)!;
+  const name = safeTableName(table);
+  if (!store.has(name)) store.set(name, []);
+  return store.get(name)!;
 }
 
 function setRows(table: object, rows: Row[]): void {
-  store.set(table, rows);
+  const name = safeTableName(table);
+  store.set(name, rows);
+  persistStore();
 }
 
 // ---- Chainable query builders ----
@@ -407,6 +462,13 @@ let isSeeded = false;
 function seedDatabase() {
   if (isSeeded) return;
   isSeeded = true;
+
+  // If persisted data exists, don't overwrite it with seed values.
+  if (getRows(contentTable).length > 0 || getRows(detectionTable).length > 0) {
+    console.log("[dev-db] Seed skipped (existing persisted data).");
+    return;
+  }
+
   const DEMO_USER_ID = "demo@contentguard.io";
   const contentItems: Row[] = [
     { id: 1, uuid: randomUUID(), title: "Deep Learning for Natural Language Processing: A Comprehensive Survey", type: "paper", description: "A systematic review of deep learning architectures applied to NLP tasks", contentHash: "sha256:a8f3c2d1e9b5f7a4c6d8e2f1b3a5c7d9e1f3a5c7", author: "Dr. Sarah Chen", organization: "MIT CSAIL", similarityThreshold: 0.88, status: "active", detectionCount: 14, fileSize: null, blockchainTxHash: null, ipfsHash: null, registeredAt: new Date(), ownerId: DEMO_USER_ID },
@@ -452,7 +514,7 @@ function seedDatabase() {
   setRows(alertTable, alerts);
   setRows(blockchainRecordTable, []);
 
-  console.log("[in-memory db] Seeded: 6 content, 60 detections, 6 alerts");
+  console.log("[dev-db] Seeded: 6 content, 60 detections, 6 alerts");
 }
 
 seedDatabase();

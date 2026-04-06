@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useListDetections, useUpdateDetectionStatus } from "@workspace/api-client-react";
 import type { ListDetectionsStatus, UpdateDetectionStatusRequestStatus } from "@workspace/api-client-react";
 
@@ -27,10 +27,15 @@ export default function Detections() {
   const [filter, setFilter] = useState<ListDetectionsStatus | "all">("all");
   const [platformFilter, setPlatformFilter] = useState("all");
 
-  const { data, isLoading } = useListDetections({
+  const { data, isLoading, refetch } = useListDetections({
     limit: 50,
     ...(filter !== "all" ? { status: filter } : {})
   });
+
+  useEffect(() => {
+    console.log("Fetching detections on load");
+    void refetch();
+  }, [refetch]);
 
   const { mutate: updateStatus } = useUpdateDetectionStatus({
     mutation: {
