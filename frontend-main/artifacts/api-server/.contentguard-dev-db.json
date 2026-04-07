@@ -152,7 +152,7 @@
       "registeredAt": "2026-04-06T16:46:11.295Z",
       "id": 8,
       "libraryMatches": {
-        "scannedAt": "2026-04-06T16:46:32.188Z",
+        "scannedAt": "2026-04-07T06:10:52.088Z",
         "fingerprint": "9d183b397c5e5ed3234d6239b2dac338a1e8d0cd31c24bd8266064505c9fb257",
         "matches": [
           {
@@ -177,25 +177,18 @@
             "snippet": "Florida Gators vs Alabama Crimson Tide. SEC CHAMPIONSHIP ... Game Information. 1:00 PM, December 6, 2008. Georgia Dome. Atlanta, GA. Georgia Dome. Attendance: ..."
           },
           {
-            "url": "https://rolltide.com/news/2008/12/6/alabama_falls_to_florida_in_sec_championship_game_31_20",
+            "url": "https://rolltide.com/news/2008/12/1/2008_SEC_Championship_Game_Alabama_vs_Florida",
             "similarity": 53,
             "status": "medium",
-            "title": "Alabama Falls to Florida in SEC Championship Game, 31-20",
+            "title": "2008 SEC Championship Game: Alabama vs. Florida",
             "snippet": "The 2008 Dr Pepper SEC Championship Game was played December 6, 2008, in the Georgia Dome in Atlanta to determine the 2008 football champion of the Southeastern"
-          },
-          {
-            "url": "https://www.al.com/spotnews/2008/12/florida_beats_alabama_in_sec_c.html",
-            "similarity": 53,
-            "status": "medium",
-            "title": "Florida beats Alabama in SEC Championship 31-20",
-            "snippet": "... SEC Championship game at the Georgia Dome in Atlanta, Ga., Saturday, Dec. 6, 2008. Florida appears headed back to the national championship game ..."
           },
           {
             "url": "https://gatorswire.usatoday.com/story/sports/college/gators/football/2020/05/09/watch-the-2008-sec-championship-game-between-florida-and-alabama/78898277007/",
-            "similarity": 52,
+            "similarity": 51,
             "status": "medium",
             "title": "The 2008 SEC Championship Game against 'Bama was one ...",
-            "snippet": "The 2008 Dr Pepper SEC Championship Game was played December 6, 2008, in the Georgia Dome in Atlanta to determine the 2008 football champion of the Southeastern"
+            "snippet": "The game was an intense slugfest between the two SEC heavyweights, with the Gators jumping out to an early lead after which the two teams duked ..."
           },
           {
             "url": "https://www.cbssports.com/college-football/news/sec-on-cbs-top-10-no-7-dec-6-2008-florida-vs-alabama/",
@@ -205,17 +198,199 @@
             "snippet": "The 2008 Dr Pepper SEC Championship Game was played December 6, 2008, in the Georgia Dome in Atlanta to determine the 2008 football champion of the Southeastern"
           },
           {
-            "url": "https://mississippitoday.org/2025/03/13/sec-tournament-tornado-2008/",
-            "similarity": 43,
+            "url": "https://www.youtube.com/watch?v=iPeRRc6OdxI",
+            "similarity": 48,
             "status": "low",
-            "title": "Remembering the SEC's weirdest basketball tournament ...",
-            "snippet": "Column: Remembering the weirdest SEC basketball tournament on record, when a tornado ripped through downtown Atlanta during a 2008 ..."
+            "title": "2008 SEC Championship Game - #1 Alabama vs. #2 Florida ...",
+            "snippet": "Georgia Dome (Atlanta, GA). The 17th annual SEC Championship Game. The #1 Alabama Crimson Tide (12-0) vs. the #2 Florida Gators (11-1)."
+          },
+          {
+            "url": "https://www.facebook.com/weathertrevor/videos/tornado-hits-georgia-dome/261874381366743/",
+            "similarity": 47,
+            "status": "low",
+            "title": "On this day in 2008, Mississippi State was facing Alabama in ...",
+            "snippet": "A tornado struck the Georgia Dome in Atlanta. The game was forced into OT which likely saved lives by keeping fans inside the arena. MSU went on to win the ..."
           }
         ],
         "queriesUsed": [
           "\"The 2008 Dr Pepper SEC Championship Game was played December 6, 2008, in the Georgia Dome in Atlanta to determ\"",
           "The 2008 Dr Pepper SEC The game featured the Florida Gators and the Alabama Crimson Tide.",
           "The Gators were classified as the home team."
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "uuid": "25f7fde3-0963-4b24-99b4-21edee0fe28b",
+      "title": "Stimpson was born in Boston.txt",
+      "type": "document",
+      "description": "Stimpson was born in Boston, Massachusetts to Herbert Hathorne Stimpson and Mary Ann Devereau Brewer.[1] The Stimpsons were of the colonial stock of Massachusetts, the earliest known member of the family being James Stimpson, who was married in 1661, in Milton.[1] His mother died at an early age.[1] William Stimpson's father was an ingenious inventor, and a leading merchant of Boston in the mid decades of the nineteenth century, trading as \"H. & F. Stimpson, stoves and furnaces, corner of Congress and Water Streets.[2] It was he who invented the \"Stimpson range\", the first sheet-iron cooking stove, famous in its day throughout New England.[1] He also made improvements in rifles, and suggested the placing of the flange on the inside of railway car wheels instead of on the outside, as had been the custom.[1] His son was to inherit his energy, love of social life, enthusiasm, and brilliant wit.[1]",
+      "extractedFullText": "Stimpson was born in Boston, Massachusetts to Herbert Hathorne Stimpson and Mary Ann Devereau Brewer.[1] The Stimpsons were of the colonial stock of Massachusetts, the earliest known member of the family being James Stimpson, who was married in 1661, in Milton.[1] His mother died at an early age.[1] William Stimpson's father was an ingenious inventor, and a leading merchant of Boston in the mid decades of the nineteenth century, trading as \"H. & F. Stimpson, stoves and furnaces, corner of Congress and Water Streets.[2] It was he who invented the \"Stimpson range\", the first sheet-iron cooking stove, famous in its day throughout New England.[1] He also made improvements in rifles, and suggested the placing of the flange on the inside of railway car wheels instead of on the outside, as had been the custom.[1] His son was to inherit his energy, love of social life, enthusiasm, and brilliant wit.[1]",
+      "contentHash": "dcdeac337d6fdc0bd64771ec0d368ba6aa98001ae1f8befa3174ca47b8e3d2ef",
+      "perceptualHash": null,
+      "textFingerprint": null,
+      "fileSize": 908,
+      "author": "Unknown Author",
+      "organization": "ContentGuard Community",
+      "similarityThreshold": 0.85,
+      "status": "active",
+      "detectionCount": 8,
+      "ipfsHash": "bafkreig432wdg7lp3qf5mr3r5qgtnc5gvkmaagxb7c7pumluzjd3ry6s54",
+      "ownerId": "gt.200506@gmail.com",
+      "registeredAt": "2026-04-07T06:07:15.494Z",
+      "id": 9,
+      "libraryMatches": {
+        "scannedAt": "2026-04-07T06:10:52.098Z",
+        "fingerprint": "300f85cbfb30acff946415bbfd1dd2c960ab21ed4fae421bf712a24cbfe355d3",
+        "matches": [
+          {
+            "url": "https://en.wikipedia.org/wiki/William_Stimpson",
+            "similarity": 96,
+            "status": "high",
+            "title": "William Stimpson",
+            "snippet": "Stimpson was born in Boston, Massachusetts to Herbert Hathorne Stimpson and Mary Ann Devereau Brewer.[1] The Stimpsons were of the colonial stock of Massachusetts, the earliest known member of the fam"
+          },
+          {
+            "url": "http://biographicalmemoirs.org/pdfs/stimpson-william.pdf",
+            "similarity": 64,
+            "status": "medium",
+            "title": "William Stimpson - Biographical Memoirs",
+            "snippet": "William Stimpson was born in Roxbury, Massachusetts, on. February 14, 1832; the son of Herbert Hathorne Stimpson and. Mary Ann Devereau Brewer. The Stimpsons ..."
+          },
+          {
+            "url": "https://www.encyclopedia.com/science/dictionaries-thesauruses-pictures-and-press-releases/stimpson-william",
+            "similarity": 62,
+            "status": "medium",
+            "title": "Stimpson, William",
+            "snippet": "Stimpson was born in Boston, Massachusetts to Herbert Hathorne Stimpson and Mary Ann Devereau Brewer.[1] The Stimpsons were of the colonial stock of Massachuset"
+          },
+          {
+            "url": "https://www.genealogy.com/forum/surnames/topics/stimpson/206/",
+            "similarity": 62,
+            "status": "medium",
+            "title": "Re: James Herbert Stimpson....MA and AL",
+            "snippet": "Stimpson's father, Herbert Hathorne Stimpson ... From an old Virginia family, the former Mary Ann Devereau Brewer married Herbert Stimpson ..."
+          },
+          {
+            "url": "https://ancestors.familysearch.org/en/MK3F-14R/captain-herbert-h-stimpson-1802-1887",
+            "similarity": 58,
+            "status": "medium",
+            "title": "Herbert Hathorn Stimpson (1802–1887)",
+            "snippet": "He married Mary Ann Devereaux Brewer on 28 April 1830, in Boston, Suffolk, Massachusetts, United States. They were the parents of at least 3 sons and 1 daughter ..."
+          },
+          {
+            "url": "https://www.geni.com/people/William-Stimpson/6000000042803434137",
+            "similarity": 56,
+            "status": "medium",
+            "title": "William Stimpson (1832 - 1872) - Genealogy",
+            "snippet": "Immediate Family · Herbert Hathorne Stimpson. father · Mary Ann Devereau Stimpson. mother · Francis Eaton Stimpson. brother ..."
+          },
+          {
+            "url": "https://dokumen.pub/william-stimpson-and-the-golden-age-of-american-natural-history-9781501758126.html",
+            "similarity": 56,
+            "status": "medium",
+            "title": "William Stimpson and the Golden Age of American Natural ...",
+            "snippet": "... Herbert Hathorne Stimpson, William's father, was Charles's sixth child. ... Mary Ann Devereaux Brewer has been identified variously as having been born ..."
+          },
+          {
+            "url": "https://www.facebook.com/groups/784313937238895/posts/920308033639484/",
+            "similarity": 51,
+            "status": "medium",
+            "title": "**William Stimpson (1832 – 1872**) was an American scientist ...",
+            "snippet": "William Stimpson (1832 – 1872) was an American scientist particularly interested in marine biology. Stimpson was born in Boston, Massachusetts to Herbert ..."
+          }
+        ],
+        "queriesUsed": [
+          "\"Stimpson was born in Boston, Massachusetts to Herbert Hathorne Stimpson and Mary Ann Devereau Brewer.[1] The S\"",
+          "Stimpson was born in Boston Stimpson, stoves and furnaces, corner of Congress and Water Streets.[2] It was he who inve",
+          ".[1] The Stimpsons were of the colonial stock of Massachusetts, the earliest known member of the fam"
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "uuid": "85eb88e4-706c-4d2a-ac28-630f86b93203",
+      "title": "Screenshot from 2026-04-07 11-39-36.png",
+      "type": "image",
+      "description": "No extractable text for web detection (use text, PDF, DOCX, or clear image text).",
+      "extractedFullText": null,
+      "contentHash": "f4ab102ea6d823f0d217781ecd813e17646b67d3a9feedc23e4cee10078cc763",
+      "perceptualHash": "0011110100111101001111111100001111000110110000101000001110000000",
+      "textFingerprint": null,
+      "fileSize": 221123,
+      "author": "Unknown Author",
+      "organization": "ContentGuard Community",
+      "similarityThreshold": 0.85,
+      "status": "active",
+      "detectionCount": 8,
+      "ipfsHash": "bafkreihuvmic5jwyepynef3yd3gycpqxmrvwpu5j73w4epsm5yiapdghmm",
+      "ownerId": "gt.200506@gmail.com",
+      "registeredAt": "2026-04-07T06:09:52.360Z",
+      "id": 10,
+      "libraryMatches": {
+        "scannedAt": "2026-04-07T06:10:52.099Z",
+        "fingerprint": "f68e6f7220359dd22316cd80b04d7146e9cdb388d8c6fef017a5b80e23f9eeb4",
+        "matches": [
+          {
+            "url": "https://www.adobe.com/uk/acrobat/online/ocr-pdf.html",
+            "similarity": 57,
+            "status": "medium",
+            "title": "Free Online OCR Software | Convert PDF to Text",
+            "snippet": "No extractable text for web detection (use text, PDF, DOCX, or clear image text)."
+          },
+          {
+            "url": "https://www.pdf2go.com/pdf-to-text",
+            "similarity": 53,
+            "status": "medium",
+            "title": "Convert your PDF to text online - PDF2Go",
+            "snippet": "No extractable text for web detection (use text, PDF, DOCX, or clear image text)."
+          },
+          {
+            "url": "https://cloud.google.com/use-cases/ocr",
+            "similarity": 50,
+            "status": "medium",
+            "title": "OCR With Google AI",
+            "snippet": "No extractable text for web detection (use text, PDF, DOCX, or clear image text)."
+          },
+          {
+            "url": "https://community.openai.com/t/chatgpt-error-no-text-could-be-extracted-from-this-file/1151477",
+            "similarity": 50,
+            "status": "medium",
+            "title": "Chatgpt error: No text could be extracted from this file - Bugs",
+            "snippet": "ChatGPT only extracts text from PDFs that already contain searchable text. The PDF you uploaded is a scanned handwritten document."
+          },
+          {
+            "url": "https://github.com/pymupdf/PyMuPDF/issues/567",
+            "similarity": 45,
+            "status": "low",
+            "title": "No text extractable from scanned pages · Issue #567",
+            "snippet": "No. Your PDF simply contains no text, only pictures. Someone used a scanner to take a picture of every page of the book. There is nothing ..."
+          },
+          {
+            "url": "https://www.facebook.com/groups/DataScienceGroup/posts/5265999750128539/",
+            "similarity": 33,
+            "status": "low",
+            "title": "How to extract text from PDF documents using NLP ...",
+            "snippet": "Great suggestions here but i often find that pdfs are rarely so neatly organized with digital text embedded in the encoding."
+          },
+          {
+            "url": "https://www.reddit.com/r/automation/comments/1jp5i3t/i_tried_6_pdf_extraction_toolsheres_what_i_learned/",
+            "similarity": 29,
+            "status": "low",
+            "title": "I Tried 6 PDF Extraction Tools—Here's What I Learned",
+            "snippet": "For everyday extraction and quick PDF work, Smallpdf has been really reliable especially when I need clean tables or editable text without ..."
+          },
+          {
+            "url": "https://stackoverflow.com/questions/51252872/how-to-do-ocr-for-pdf-text-extraction-while-maintaining-text-structure-header-s",
+            "similarity": 28,
+            "status": "low",
+            "title": "How to do OCR for PDF text extraction WHILE maintaining ...",
+            "snippet": "I want a tool that can output a list of titles, subtitles and bodies. Or, if anybody knows how to do this, that would also be useful."
+          }
+        ],
+        "queriesUsed": [
+          "\"No extractable text for web detection (use text, PDF, DOCX, or clear image text).\"",
+          "Screenshot from 2026 04 07 11 39 36 f4ab102ea6d823f0"
         ],
         "warnings": []
       }
@@ -1213,6 +1388,24 @@
       "uploadedAt": "2026-04-06T16:46:11.290Z",
       "scanResults": [],
       "id": 1
+    },
+    {
+      "userId": "gt.200506@gmail.com",
+      "fileName": "Stimpson was born in Boston.txt",
+      "fileType": "text/plain",
+      "ipfsHash": "bafkreig432wdg7lp3qf5mr3r5qgtnc5gvkmaagxb7c7pumluzjd3ry6s54",
+      "uploadedAt": "2026-04-07T06:07:15.489Z",
+      "scanResults": [],
+      "id": 2
+    },
+    {
+      "userId": "gt.200506@gmail.com",
+      "fileName": "Screenshot from 2026-04-07 11-39-36.png",
+      "fileType": "image/png",
+      "ipfsHash": "bafkreihuvmic5jwyepynef3yd3gycpqxmrvwpu5j73w4epsm5yiapdghmm",
+      "uploadedAt": "2026-04-07T06:09:52.356Z",
+      "scanResults": [],
+      "id": 3
     }
   ]
 }
