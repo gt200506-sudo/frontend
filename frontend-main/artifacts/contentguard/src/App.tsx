@@ -15,7 +15,6 @@ import ContentView from "./pages/content-view";
 import RegisterContent from "./pages/register-content";
 import Detections from "./pages/detections";
 import Propagation from "./pages/propagation";
-import Alerts from "./pages/alerts";
 import Web3 from "./pages/web3";
 import Settings from "./pages/settings";
 import ForgotPassword from "./pages/forgot-password";
@@ -61,7 +60,6 @@ function Router() {
           <Route path="/content/register" component={RegisterContent} />
           <Route path="/detections" component={Detections} />
           <Route path="/propagation" component={Propagation} />
-          <Route path="/alerts" component={Alerts} />
           <Route path="/web3" component={Web3} />
           <Route path="/settings" component={Settings} />
           <Route component={NotFound} />

@@ -2,10 +2,9 @@ import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import {
   Home, FileText, PlusCircle, ShieldAlert,
-  Network, Bell, Hexagon, Settings,
+  Network, Hexagon, Settings,
   LogOut, ShieldCheck
 } from "lucide-react";
-import { useListAlerts } from "@workspace/api-client-react";
 import { useAuth } from "@/context/auth";
 import { cn } from "@/lib/utils";
 
@@ -15,15 +14,12 @@ const NAV_ITEMS = [
   { href: "/content/register", label: "Register Content", icon: PlusCircle },
   { href: "/detections", label: "Detections", icon: ShieldAlert },
   { href: "/propagation", label: "Propagation Network", icon: Network },
-  { href: "/alerts", label: "Alerts", icon: Bell },
   { href: "/web3", label: "Web3 / Blockchain", icon: Hexagon },
 ];
 
 export function Layout({ children }: { children: ReactNode }) {
   const [location] = useLocation();
-  const { data: alertsData } = useListAlerts({ read: false, limit: 1 });
   const { user, signOut } = useAuth();
-  const unreadAlerts = alertsData?.total || 0;
 
   return (
     <div className="min-h-screen bg-background text-foreground flex">
@@ -54,12 +50,6 @@ export function Layout({ children }: { children: ReactNode }) {
               >
                 <Icon className={cn("w-5 h-5 transition-transform group-hover:scale-110 duration-300", isActive ? "text-primary" : "")} />
                 <span className="flex-1">{item.label}</span>
-
-                {item.label === "Alerts" && unreadAlerts > 0 && (
-                  <span className="bg-destructive/20 text-destructive border border-destructive/30 px-2 py-0.5 rounded-full text-xs font-bold shadow-sm">
-                    {unreadAlerts}
-                  </span>
-                )}
               </Link>
             );
           })}
