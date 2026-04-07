@@ -1,4 +1,5 @@
-import { useGetAnalyticsOverview, useListDetections } from "@workspace/api-client-react";
+import { useEffect, useMemo } from "react";
+import { useGetAnalyticsOverview, useListContent, useListDetections } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, FileText, AlertTriangle, Fingerprint, ArrowRight, PlusCircle, Hexagon } from "lucide-react";
 import { Link } from "wouter";
@@ -8,8 +9,30 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
 const PLATFORM_COLORS = ['#ef4444', '#f97316', '#eab308', '#3b82f6', '#8b5cf6', '#ec4899', '#10b981', '#06b6d4', '#a855f7', '#f43f5e'];
 
 export default function Dashboard() {
-  const { data: stats, isLoading: statsLoading } = useGetAnalyticsOverview();
-  const { data: detectionsData, isLoading: detectionsLoading } = useListDetections({ limit: 5 });
+  const { data: stats, isLoading: statsLoading, error: statsError, refetch: refetchStats } = useGetAnalyticsOverview();
+  const {
+    data: contentData,
+    isLoading: contentLoading,
+    error: contentError,
+    refetch: refetchContent,
+  } = useListContent({ limit: 200 });
+  const {
+    data: detectionsData,
+    isLoading: detectionsLoading,
+    error: detectionsError,
+    refetch: refetchDetections,
+  } = useListDetections({ limit: 5 });
+
+  useEffect(() => {
+    console.log("[dashboard] fetching analytics/content/detections");
+    void refetchStats();
+    void refetchContent();
+    void refetchDetections();
+  }, [refetchStats, refetchContent, refetchDetections]);
+
+  useEffect(() => {
+    if (contentData) console.log("[dashboard] /api/content response", contentData);
+  }, [contentData]);
 
   const summaryCards = [
     { title: "Total Content Protected", value: stats?.totalContent || 0, icon: FileText, color: "text-blue-400", bg: "bg-blue-400/10" },
@@ -18,9 +41,53 @@ export default function Dashboard() {
     { title: "Confirmed Infringements", value: stats?.confirmedInfringements || 0, icon: AlertTriangle, color: "text-rose-400", bg: "bg-rose-400/10" },
   ];
 
-  const breachData = (stats?.platformBreakdown || [])
-    .map(p => ({ platform: p.platform, breaches: p.count }))
-    .sort((a, b) => b.breaches - a.breaches);
+  const derivedFromContent = useMemo(() => {
+    const items = contentData?.items ?? [];
+    const detections = items.flatMap((item) => {
+      const lm = (item.libraryMatches ?? {}) as Record<string, unknown>;
+      const scannedAt = typeof lm.scannedAt === "string" ? lm.scannedAt : item.registeredAt;
+      const matches = Array.isArray(lm.matches) ? lm.matches : [];
+      return matches
+        .filter((m): m is Record<string, unknown> => Boolean(m && typeof m === "object"))
+        .map((m, index) => {
+          const rawSimilarity = typeof m.similarity === "number" ? m.similarity : Number(m.similarity || 0);
+          const similarityScore = rawSimilarity > 1 ? rawSimilarity / 100 : rawSimilarity;
+          const url = typeof m.url === "string" ? m.url : "";
+          let sourcePlatform = "web";
+          try {
+            sourcePlatform = url ? new URL(url).hostname.replace(/^www\./, "") : "web";
+          } catch {
+            sourcePlatform = "web";
+          }
+          return {
+            id: `${item.id}-${index}`,
+            contentTitle: item.title,
+            similarityScore,
+            sourcePlatform,
+            sourceUrl: url,
+            detectedAt: scannedAt,
+            status: "pending",
+          };
+        });
+    });
+    return detections.sort((a, b) => new Date(b.detectedAt).getTime() - new Date(a.detectedAt).getTime());
+  }, [contentData]);
+
+  const breachData = (stats?.platformBreakdown?.length
+    ? stats.platformBreakdown.map((p) => ({ platform: p.platform, breaches: p.count }))
+    : derivedFromContent.reduce<Record<string, number>>((acc, d) => {
+        acc[d.sourcePlatform] = (acc[d.sourcePlatform] || 0) + 1;
+        return acc;
+      }, {}));
+
+  const chartData = Array.isArray(breachData)
+    ? breachData.sort((a, b) => b.breaches - a.breaches)
+    : Object.entries(breachData)
+        .map(([platform, breaches]) => ({ platform, breaches }))
+        .sort((a, b) => b.breaches - a.breaches);
+
+  const recentDetections = (detectionsData?.items?.length ? detectionsData.items : derivedFromContent).slice(0, 5);
+  const hasAnyError = Boolean(statsError || contentError || detectionsError);
 
   return (
     <div className="space-y-8">
@@ -68,15 +135,15 @@ export default function Dashboard() {
         </CardHeader>
         <CardContent>
           <div className="h-[260px] w-full">
-            {statsLoading ? (
+            {statsLoading || contentLoading ? (
               <div className="h-full flex items-end gap-2 px-2">
                 {Array(8).fill(0).map((_, i) => (
                   <div key={i} className="flex-1 bg-white/5 animate-pulse rounded-t" style={{ height: `${30 + Math.random() * 60}%` }} />
                 ))}
               </div>
-            ) : (
+            ) : chartData.length ? (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={breachData} layout="vertical" margin={{ top: 5, right: 30, left: 60, bottom: 5 }}>
+                <BarChart data={chartData} layout="vertical" margin={{ top: 5, right: 30, left: 60, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#334155" horizontal={false} />
                   <XAxis
                     type="number"
@@ -101,12 +168,16 @@ export default function Dashboard() {
                     formatter={(value: number) => [`${value} breaches`, "Frequency"]}
                   />
                   <Bar dataKey="breaches" radius={[0, 4, 4, 0]} maxBarSize={24}>
-                    {breachData.map((_, index) => (
+                    {chartData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={PLATFORM_COLORS[index % PLATFORM_COLORS.length]} />
                     ))}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
+            ) : (
+              <div className="h-full grid place-items-center text-sm text-muted-foreground">
+                No breach data yet. Run AI detection to populate the graph.
+              </div>
             )}
           </div>
         </CardContent>
@@ -126,6 +197,11 @@ export default function Dashboard() {
             </Link>
           </CardHeader>
           <CardContent>
+            {hasAnyError ? (
+              <div className="rounded-lg border border-rose-500/30 bg-rose-500/10 p-4 text-sm text-rose-300 mb-4">
+                Failed to load dashboard data.
+              </div>
+            ) : null}
             <div className="space-y-4">
               {detectionsLoading ? (
                 Array(5).fill(0).map((_, i) => (
@@ -134,8 +210,8 @@ export default function Dashboard() {
                     <div className="h-5 w-24 bg-white/10 rounded" />
                   </div>
                 ))
-              ) : detectionsData?.items?.length ? (
-                detectionsData.items.map((detection) => (
+              ) : recentDetections.length ? (
+                recentDetections.map((detection) => (
                   <div key={detection.id} className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:bg-white/[0.04] transition-colors">
                     <div className="flex items-center gap-4">
                       <div className={`p-2 rounded-full ${
