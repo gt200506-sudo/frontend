@@ -31,7 +31,7 @@ router.get("/content", async (req, res) => {
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
-    console.log("Fetched content:", data);
+    console.log("[content] fetched rows:", data?.length ?? 0);
 
     if (error) {
       console.error("Supabase list content error:", error);
@@ -39,7 +39,15 @@ router.get("/content", async (req, res) => {
     }
 
     const rows = data ?? [];
-    const mapped = rows.map((row) => mapSupabaseContentRow(row as Record<string, unknown>));
+    const mapped = rows.map((row) => {
+      const item = mapSupabaseContentRow(row as Record<string, unknown>);
+      return {
+        ...item,
+        content: item.description ?? item.title,
+        created_at: item.registeredAt,
+        ai_detection_result: (item.libraryMatches as any)?.matches ?? null,
+      };
+    });
     const filtered = query.type ? mapped.filter((c) => c.type === query.type) : mapped;
     const items = filtered.slice(offset, offset + limit);
 
@@ -71,6 +79,9 @@ router.get("/content", async (req, res) => {
     aiAnalysis: c.aiAnalysis ?? null,
     // Local dev DB persistence for AI detection results (/api/detect-content).
     libraryMatches: (c as any).libraryMatches ?? (c as any).library_matches ?? undefined,
+    content: c.description ?? c.title,
+    created_at: (c.registeredAt instanceof Date) ? c.registeredAt.toISOString() : new Date(c.registeredAt as any).toISOString(),
+    ai_detection_result: ((c as any).libraryMatches ?? (c as any).library_matches)?.matches ?? null,
   }));
 
   return res.json({ items, total: filtered.length, page, limit });

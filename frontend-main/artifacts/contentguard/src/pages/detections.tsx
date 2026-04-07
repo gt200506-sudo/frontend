@@ -27,7 +27,7 @@ export default function Detections() {
   const [filter, setFilter] = useState<ListDetectionsStatus | "all">("all");
   const [platformFilter, setPlatformFilter] = useState("all");
 
-  const { data, isLoading, refetch } = useListDetections({
+  const { data, isLoading, error, refetch } = useListDetections({
     limit: 50,
     ...(filter !== "all" ? { status: filter } : {})
   });
@@ -36,6 +36,10 @@ export default function Detections() {
     console.log("Fetching detections on load");
     void refetch();
   }, [refetch]);
+
+  useEffect(() => {
+    if (data) console.log("[detections] /api/detections response", data);
+  }, [data]);
 
   const { mutate: updateStatus } = useUpdateDetectionStatus({
     mutation: {
@@ -112,6 +116,16 @@ export default function Detections() {
       </div>
 
       <div className="grid gap-4">
+        {error ? (
+          <Card className="glass-panel p-4 border-rose-500/30 bg-rose-500/10">
+            <div className="flex items-center justify-between gap-4">
+              <p className="text-sm text-rose-300">Failed to load detections.</p>
+              <Button variant="outline" onClick={() => void refetch()}>
+                Retry
+              </Button>
+            </div>
+          </Card>
+        ) : null}
         {isLoading ? (
           Array(5).fill(0).map((_, i) => (
             <Card key={i} className="glass-panel p-6 animate-pulse">
