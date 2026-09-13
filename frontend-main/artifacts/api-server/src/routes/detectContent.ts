@@ -25,6 +25,8 @@ type ContentRowInput = {
   full_text: string | null;
   file_type: string | null;
   perceptual_hash: string | null;
+  ipfs_hash: string | null;
+  gateway_url: string | null;
 };
 
 export type DetectContentMatch = {
@@ -105,7 +107,7 @@ router.post("/detect-content", async (req, res) => {
     if (supabase) {
       const { data, error } = await supabase
         .from("content")
-        .select("id, file_name, content_hash, text_snippet, full_text, file_type, perceptual_hash, ipfs_hash")
+        .select("id, file_name, content_hash, text_snippet, full_text, file_type, perceptual_hash, ipfs_hash, gateway_url")
         .eq("user_id", userId);
 
       if (error) {
@@ -122,6 +124,8 @@ router.post("/detect-content", async (req, res) => {
         full_text: (r.full_text as string | null) ?? null,
         file_type: (r.file_type as string | null) ?? null,
         perceptual_hash: (r.perceptual_hash as string | null) ?? null,
+        ipfs_hash: (r.ipfs_hash as string | null) ?? null,
+        gateway_url: (r.gateway_url as string | null) ?? null,
       }));
 
       if (requestedIds?.length) {
@@ -149,6 +153,8 @@ router.post("/detect-content", async (req, res) => {
               ? "video/mp4"
               : "application/octet-stream",
         perceptual_hash: c.perceptualHash != null ? String(c.perceptualHash) : null,
+        ipfs_hash: c.ipfsHash != null ? String(c.ipfsHash) : null,
+        gateway_url: c.ipfsHash ? `https://gateway.pinata.cloud/ipfs/${c.ipfsHash}` : null,
       }));
       if (requestedIds?.length) {
         const set = new Set(requestedIds);

@@ -114,6 +114,203 @@ export async function googleCustomSearch(query: string): Promise<string[]> {
   return searchWeb(query);
 }
 
+export type ReverseImageHit = {
+  link: string;
+  title: string;
+  snippet: string;
+  exact: boolean;
+};
+
+/** Reverse image search is on when SerpAPI or Vision is configured, unless explicitly disabled. */
+export function isReverseImageSearchEnabled(): boolean {
+  if (process.env.DISABLE_REVERSE_IMAGE_SEARCH === "1") return false;
+  return Boolean(
+    process.env.SERPAPI_KEY ||
+      process.env.GOOGLE_VISION_API_KEY ||
+      process.env.GOOGLE_CLOUD_VISION_API_KEY,
+  );
+}
+
+function visionApiKey(): string | undefined {
+  return process.env.GOOGLE_VISION_API_KEY || process.env.GOOGLE_CLOUD_VISION_API_KEY;
+}
+
+function pushHit(out: ReverseImageHit[], seen: Set<string>, row: ReverseImageHit): void {
+  if (!row.link.startsWith("http") || seen.has(row.link)) return;
+  seen.add(row.link);
+  out.push(row);
+}
+
+function collectSerpImageHits(data: Record<string, unknown>, seen: Set<string>, out: ReverseImageHit[]): void {
+  const exactSet = new Set(
+    (Array.isArray(data.exact_matches) ? data.exact_matches : [])
+      .map((row) => (row && typeof row === "object" ? (row as { link?: string }).link : undefined))
+      .filter((u): u is string => typeof u === "string"),
+  );
+  const buckets: unknown[] = [
+    data.visual_matches,
+    data.exact_matches,
+    data.image_results,
+    data.inline_images,
+    data.organic_results,
+  ].flatMap((b) => (Array.isArray(b) ? b : []));
+
+  for (const raw of buckets) {
+    if (!raw || typeof raw !== "object") continue;
+    const o = raw as Record<string, unknown>;
+    const link =
+      typeof o.link === "string"
+        ? o.link
+        : typeof o.source === "string" && String(o.source).startsWith("http")
+          ? String(o.source)
+          : "";
+    if (!link.startsWith("http")) continue;
+    const title = String(o.title ?? o.source ?? "").slice(0, 500);
+    const snippet = String(o.snippet ?? o.source ?? title).slice(0, 500);
+    pushHit(out, seen, {
+      link,
+      title,
+      snippet,
+      exact: o.exact_matches === true || exactSet.has(link),
+    });
+  }
+}
+
+async function serpApiEngineSearch(
+  params: Record<string, string | number>,
+): Promise<Record<string, unknown> | null> {
+  const apiKey = process.env.SERPAPI_KEY;
+  if (!apiKey) return null;
+  let lastErr: unknown;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      if (attempt > 0) await new Promise((r) => setTimeout(r, 400 * attempt));
+      const { data } = await axios.get("https://serpapi.com/search.json", {
+        params: { ...params, api_key: apiKey },
+        timeout: 30_000,
+        headers: { "User-Agent": USER_AGENT },
+      });
+      if (data?.error) {
+        console.warn("[webScanner] SerpAPI reverse-image error:", data.error);
+        return null;
+      }
+      return (data ?? null) as Record<string, unknown> | null;
+    } catch (e: unknown) {
+      lastErr = e;
+    }
+  }
+  console.warn("[webScanner] SerpAPI reverse-image failed after retries:", lastErr);
+  return null;
+}
+
+async function googleVisionWebDetection(args: {
+  imageUrl?: string | null;
+  imageBuffer?: Buffer | null;
+}): Promise<ReverseImageHit[]> {
+  const key = visionApiKey();
+  if (!key) return [];
+  const image: Record<string, unknown> = {};
+  if (args.imageBuffer && args.imageBuffer.length > 0) {
+    image.content = args.imageBuffer.toString("base64");
+  } else if (args.imageUrl) {
+    image.source = { imageUri: args.imageUrl };
+  } else {
+    return [];
+  }
+
+  try {
+    const { data } = await axios.post(
+      `https://vision.googleapis.com/v1/images:annotate?key=${encodeURIComponent(key)}`,
+      {
+        requests: [
+          {
+            image,
+            features: [{ type: "WEB_DETECTION", maxResults: 12 }],
+          },
+        ],
+      },
+      { timeout: 25_000, headers: { "User-Agent": USER_AGENT } },
+    );
+    const web = data?.responses?.[0]?.webDetection as
+      | {
+          pagesWithMatchingImages?: { url?: string; pageTitle?: string }[];
+          fullMatchingImages?: { url?: string }[];
+          visuallySimilarImages?: { url?: string }[];
+          webEntities?: { description?: string }[];
+        }
+      | undefined;
+    if (!web) return [];
+    const seen = new Set<string>();
+    const out: ReverseImageHit[] = [];
+    for (const p of web.pagesWithMatchingImages ?? []) {
+      if (typeof p.url === "string") {
+        pushHit(out, seen, {
+          link: p.url,
+          title: String(p.pageTitle ?? "Vision web match").slice(0, 500),
+          snippet: "Google Vision pages-with-matching-images",
+          exact: true,
+        });
+      }
+    }
+    for (const img of [...(web.fullMatchingImages ?? []), ...(web.visuallySimilarImages ?? [])]) {
+      if (typeof img.url === "string") {
+        pushHit(out, seen, {
+          link: img.url,
+          title: "Visually similar image",
+          snippet: "Google Vision visually similar / full match",
+          exact: Boolean(web.fullMatchingImages?.some((f) => f.url === img.url)),
+        });
+      }
+    }
+    return out;
+  } catch (e: unknown) {
+    const err = e as { response?: { data?: unknown }; message?: string };
+    console.warn("[webScanner] Google Vision WEB_DETECTION failed:", err?.response?.data ?? err?.message ?? e);
+    return [];
+  }
+}
+
+/**
+ * Reverse image search via SerpAPI Google Lens, Google Reverse Image, then optional Vision API.
+ */
+export async function reverseImageSearch(args: {
+  imageUrl?: string | null;
+  imageBuffer?: Buffer | null;
+}): Promise<ReverseImageHit[]> {
+  if (!isReverseImageSearchEnabled()) return [];
+
+  const seen = new Set<string>();
+  const out: ReverseImageHit[] = [];
+  const imageUrl = args.imageUrl?.trim() || null;
+
+  if (imageUrl && process.env.SERPAPI_KEY) {
+    const lens = await serpApiEngineSearch({ engine: "google_lens", url: imageUrl, type: "visual_matches" });
+    if (lens) collectSerpImageHits(lens, seen, out);
+    await delayBetweenSearches();
+
+    if (out.length < 4) {
+      const reverse = await serpApiEngineSearch({ engine: "google_reverse_image", image_url: imageUrl });
+      if (reverse) collectSerpImageHits(reverse, seen, out);
+      await delayBetweenSearches();
+    }
+
+    if (out.length < 4) {
+      const exact = await serpApiEngineSearch({ engine: "google_lens", url: imageUrl, type: "exact_matches" });
+      if (exact) collectSerpImageHits(exact, seen, out);
+    }
+  }
+
+  if (out.length < 4 && visionApiKey()) {
+    const visionHits = await googleVisionWebDetection({
+      imageUrl,
+      imageBuffer: args.imageBuffer ?? null,
+    });
+    for (const h of visionHits) pushHit(out, seen, h);
+  }
+
+  return out.slice(0, 16);
+}
+
 export type ScrapedPage = {
   text: string;
   imageUrls: string[];

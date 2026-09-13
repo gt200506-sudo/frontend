@@ -3,9 +3,9 @@ import { randomUUID } from "crypto";
 import { compareTwoStrings } from "string-similarity";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { db, detectionTable } from "@workspace/db";
-import { extractFullTextForMime } from "./contentTextExtraction";
+import { extractFullTextForMime, isLowQualityExtract } from "./contentTextExtraction";
 import { hammingSimilarity, perceptualHashImage } from "../lib/piracyDetection";
-import { searchWeb, scrapePage } from "./webScanner";
+import { searchWeb, scrapePage, reverseImageSearch, isReverseImageSearchEnabled } from "./webScanner";
 
 export type PipelineDetection = {
   id: string;
@@ -76,60 +76,98 @@ export async function runPiracyDetectionPipeline(args: {
 
   try {
     const { fullText: plain } = await extractFullTextForMime(buffer, mimeType);
-    const snippet = plain.slice(0, 280);
+    const isImage = mimeType.toLowerCase().startsWith("image/");
+    const ocrUsable = Boolean(plain) && !isLowQualityExtract(plain);
+    const snippet = isImage ? (ocrUsable ? plain.slice(0, 280) : "") : plain.slice(0, 280);
+    const imageUrl = ipfsCid ? `https://gateway.pinata.cloud/ipfs/${ipfsCid}` : null;
+    let candidateUrls: string[] = [];
 
-    // --- A) Exact: search for hash / IPFS CID in indexed pages ---
-    const exactQuery = `${sha256.slice(0, 32)} OR "${ipfsCid}"`;
-    const exactUrls = await searchWeb(exactQuery);
-    for (const url of exactUrls.slice(0, 4)) {
-      await delay(SCRAPE_DELAY_MS);
-      const page = await scrapePage(url);
-      if (!page) continue;
-      const blob = `${page.text} ${url}`;
-      if (blob.includes(sha256) || blob.includes(ipfsCid)) {
-        results.push({
-          id: randomUUID(),
-          url,
-          matchType: "exact",
-          confidence: 0.99,
-          excerpt: `Fingerprint or CID reference found (${fileName}).`,
-          detectedAt: now(),
-          status: "pending",
-        });
+    // --- A) Exact: search for hash / IPFS CID in indexed pages (non-image text fingerprinting) ---
+    if (!isImage) {
+      const exactQuery = `${sha256.slice(0, 32)} OR "${ipfsCid}"`;
+      const exactUrls = await searchWeb(exactQuery);
+      candidateUrls.push(...exactUrls);
+      for (const url of exactUrls.slice(0, 4)) {
+        await delay(SCRAPE_DELAY_MS);
+        const page = await scrapePage(url);
+        if (!page) continue;
+        const blob = `${page.text} ${url}`;
+        if (blob.includes(sha256) || blob.includes(ipfsCid)) {
+          results.push({
+            id: randomUUID(),
+            url,
+            matchType: "exact",
+            confidence: 0.99,
+            excerpt: `Fingerprint or CID reference found (${fileName}).`,
+            detectedAt: now(),
+            status: "pending",
+          });
+        }
       }
     }
 
-    // --- B) Text: Google + NLP similarity ---
-    const q = snippet.length > 20 ? `"${fileName}" ${snippet.slice(0, 120)}` : `"${fileName}"`;
-    const textUrls = await searchWeb(q);
-    const seenUrl = new Set(results.map((r) => r.url));
-
-    for (const url of textUrls) {
-      if (results.length >= 20) break;
-      if (seenUrl.has(url)) continue;
-      await delay(SCRAPE_DELAY_MS);
-      const page = await scrapePage(url);
-      if (!page?.text.length) continue;
-
-      const sim = compareTwoStrings(plain.slice(0, 12_000), page.text.slice(0, 12_000));
-      if (sim > TEXT_FLAG) {
-        seenUrl.add(url);
-        const matchType = sim >= TEXT_PARAPHRASE ? "paraphrase" : "partial";
-        results.push({
-          id: randomUUID(),
-          url,
-          matchType,
-          confidence: Math.min(0.999, sim),
-          excerpt: page.text.slice(0, 320),
-          detectedAt: now(),
-          status: "pending",
-        });
+    // --- Images: reverse image search (Lens / reverse image / Vision) before any text SerpAPI ---
+    if (isImage) {
+      const reverseEnabled = isReverseImageSearchEnabled();
+      if (reverseEnabled) {
+        const hits = await reverseImageSearch({ imageUrl, imageBuffer: buffer });
+        console.log("[piracyPipeline] reverse image hits:", hits.length);
+        for (const hit of hits.slice(0, 12)) {
+          results.push({
+            id: randomUUID(),
+            url: hit.link,
+            matchType: hit.exact ? "exact" : "visual",
+            confidence: hit.exact ? 0.95 : 0.82,
+            excerpt: hit.snippet || hit.title || "Reverse image search match.",
+            detectedAt: now(),
+            status: "pending",
+          });
+          candidateUrls.push(hit.link);
+        }
+      } else if (!ocrUsable) {
+        console.warn(
+          "[piracyPipeline] image has no OCR text and reverse image search is disabled — skipping text SerpAPI",
+        );
       }
     }
+
+    // --- B) Text: Google + NLP similarity (images only after OCR found readable text) ---
+    const runTextSearch = !isImage || ocrUsable;
+    if (runTextSearch) {
+      const q = snippet.length > 20 ? `"${fileName}" ${snippet.slice(0, 120)}` : `"${fileName}"`;
+      const textUrls = await searchWeb(q);
+      candidateUrls.push(...textUrls);
+      const seenUrl = new Set(results.map((r) => r.url));
+
+      for (const url of textUrls) {
+        if (results.length >= 20) break;
+        if (seenUrl.has(url)) continue;
+        await delay(SCRAPE_DELAY_MS);
+        const page = await scrapePage(url);
+        if (!page?.text.length) continue;
+
+        const sim = compareTwoStrings(plain.slice(0, 12_000), page.text.slice(0, 12_000));
+        if (sim > TEXT_FLAG) {
+          seenUrl.add(url);
+          const matchType = sim >= TEXT_PARAPHRASE ? "paraphrase" : "partial";
+          results.push({
+            id: randomUUID(),
+            url,
+            matchType,
+            confidence: Math.min(0.999, sim),
+            excerpt: page.text.slice(0, 320),
+            detectedAt: now(),
+            status: "pending",
+          });
+        }
+      }
+    }
+
+    const uniqueCandidates = [...new Set(candidateUrls)];
 
     // --- C) Perceptual: compare pHash to og:image / img (images + rasterized targets only when we have pHash) ---
     if (perceptualHash) {
-      for (const url of textUrls.slice(0, 6)) {
+      for (const url of uniqueCandidates.slice(0, 6)) {
         if (results.length >= 22) break;
         await delay(SCRAPE_DELAY_MS);
         const page = await scrapePage(url);

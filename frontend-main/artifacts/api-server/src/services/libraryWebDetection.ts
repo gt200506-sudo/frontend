@@ -8,8 +8,11 @@ import {
   serpApiOrganicResults,
   scrapePage,
   delayBetweenSearches,
+  reverseImageSearch,
+  isReverseImageSearchEnabled,
 } from "./webScanner";
 import { hammingSimilarity, perceptualHashImage } from "../lib/piracyDetection";
+import { isLowQualityExtract } from "./contentTextExtraction";
 import axios from "axios";
 
 export type MatchRiskLevel = "low" | "medium" | "high";
@@ -40,6 +43,8 @@ export type LibraryContentRow = {
   full_text?: string | null;
   file_type: string | null;
   perceptual_hash: string | null;
+  ipfs_hash?: string | null;
+  gateway_url?: string | null;
 };
 
 const MAX_ASSET_TEXT_FOR_DETECTION = 80_000;
@@ -255,50 +260,43 @@ async function maybeVisualBoost(
   return Math.round(best * 30);
 }
 
-/**
- * Run SerpAPI + chunk matching for one content row (metadata from DB).
- */
-export async function scanSingleLibraryItem(row: LibraryContentRow): Promise<LibraryScanItemResult> {
-  const contentId = String(row.id);
-  const fileName = String(row.file_name ?? "untitled");
-  const contentHash = String(row.content_hash ?? "");
-  const textSnippet = row.text_snippet;
-  const fullText = row.full_text ?? null;
-  const assetText = normalizeText((fullText || textSnippet) ?? "").slice(0, MAX_ASSET_TEXT_FOR_DETECTION);
-  const perceptualHash = row.perceptual_hash;
-  const fileType = String(row.file_type ?? "");
-  const isImageAsset = fileType.startsWith("image/");
+function publicImageUrl(row: LibraryContentRow): string | null {
+  const gateway = (row.gateway_url ?? "").trim();
+  if (gateway.startsWith("http")) return gateway;
+  const cid = (row.ipfs_hash ?? "").trim();
+  if (cid) return `https://gateway.pinata.cloud/ipfs/${cid}`;
+  return null;
+}
 
-  const fingerprint = fingerprintForRow(
-    contentId,
-    fileName,
-    contentHash,
-    assetText || textSnippet,
-    perceptualHash,
-  );
-  const warnings: string[] = [];
-  const chunks = extractContentChunks(assetText || null, fileName);
-  const queriesUsed = buildSearchQueries(fileName, assetText || null, contentHash);
+/** OCR / stored body that is actually usable for text SerpAPI — not placeholders or filenames. */
+function usableOcrText(fullText: string | null, textSnippet: string | null): string {
+  const raw = normalizeText((fullText || textSnippet) ?? "").slice(0, MAX_ASSET_TEXT_FOR_DETECTION);
+  if (!raw) return "";
+  if (/no extractable text for web detection/i.test(raw)) return "";
+  if (isLowQualityExtract(raw)) return "";
+  return raw;
+}
 
-  console.log(`[libraryWebDetection] contentId=${contentId} chunks=${chunks.length} queries=${JSON.stringify(queriesUsed)}`);
+function visualHitToMatch(hit: { link: string; title: string; snippet: string; exact: boolean }, index: number): LibraryMatch {
+  const similarity = hit.exact ? 92 : Math.max(55, 88 - index * 4);
+  return {
+    url: hit.link,
+    similarity: Math.min(100, similarity),
+    status: riskFromSimilarity(similarity),
+    title: hit.title || undefined,
+    snippet: hit.snippet || undefined,
+  };
+}
 
-  if (!process.env.SERPAPI_KEY) {
-    warnings.push("SERPAPI_KEY not set — configure SerpAPI for live web search.");
-    return {
-      contentId,
-      fingerprint,
-      matches: [],
-      queriesUsed,
-      warnings,
-    };
-  }
-
-  if (chunks.length === 0 && !assetText.trim()) {
-    warnings.push(
-      "No extractable text stored for this asset — upload PDF, TXT, DOCX, or add optional OCR. Matches rely on filename/hash only.",
-    );
-  }
-
+async function scoreOrganicQueries(args: {
+  queriesUsed: string[];
+  chunks: string[];
+  fileName: string;
+  assetText: string;
+  perceptualHash: string | null;
+  isImageAsset: boolean;
+}): Promise<LibraryMatch[]> {
+  const { queriesUsed, chunks, fileName, assetText, perceptualHash, isImageAsset } = args;
   const seenUrls = new Set<string>();
   const organicAccum: { link: string; title: string; snippet: string }[] = [];
 
@@ -377,9 +375,157 @@ export async function scanSingleLibraryItem(row: LibraryContentRow): Promise<Lib
     });
   }
 
+  return matches;
+}
+
+async function scanImageLibraryItem(args: {
+  row: LibraryContentRow;
+  contentId: string;
+  fileName: string;
+  contentHash: string;
+  assetText: string;
+  fingerprint: string;
+  warnings: string[];
+  perceptualHash: string | null;
+}): Promise<LibraryScanItemResult> {
+  const { row, contentId, fileName, contentHash, assetText, fingerprint, warnings, perceptualHash } = args;
+  const reverseEnabled = isReverseImageSearchEnabled();
+  const hasOcrText = assetText.length > 0;
+  const queriesUsed: string[] = [];
+  const matches: LibraryMatch[] = [];
+  const seen = new Set<string>();
+
+  console.log(
+    `[libraryWebDetection] image asset contentId=${contentId} ocrText=${hasOcrText} reverseImage=${reverseEnabled}`,
+  );
+
+  if (reverseEnabled) {
+    const imageUrl = publicImageUrl(row);
+    if (!imageUrl) {
+      warnings.push(
+        "Image reverse search needs a public image URL (IPFS / gateway). Text-based web search was not used as a substitute.",
+      );
+    } else {
+      queriesUsed.push(`reverse-image:${imageUrl.slice(0, 120)}`);
+      const hits = await reverseImageSearch({ imageUrl });
+      console.log(`[libraryWebDetection] reverse image hits=${hits.length} url=${imageUrl.slice(0, 120)}`);
+      for (let i = 0; i < hits.length; i++) {
+        const hit = hits[i]!;
+        if (seen.has(hit.link)) continue;
+        seen.add(hit.link);
+        matches.push(visualHitToMatch(hit, i));
+      }
+    }
+  } else if (!hasOcrText) {
+    warnings.push(
+      "This image has no extractable text. Reverse image search is disabled, so text-based SerpAPI search was skipped.",
+    );
+    return { contentId, fingerprint, matches: [], queriesUsed, warnings };
+  }
+
+  if (hasOcrText && process.env.SERPAPI_KEY) {
+    const chunks = extractContentChunks(assetText, fileName);
+    const textQueries = buildSearchQueries(fileName, assetText, contentHash);
+    queriesUsed.push(...textQueries);
+    const textMatches = await scoreOrganicQueries({
+      queriesUsed: textQueries,
+      chunks,
+      fileName,
+      assetText,
+      perceptualHash,
+      isImageAsset: true,
+    });
+    for (const m of textMatches) {
+      if (seen.has(m.url)) continue;
+      seen.add(m.url);
+      matches.push(m);
+    }
+  } else if (hasOcrText && !process.env.SERPAPI_KEY && !reverseEnabled) {
+    warnings.push("SERPAPI_KEY not set — configure SerpAPI for live web search.");
+  }
+
+  matches.sort((a, b) => b.similarity - a.similarity);
+  console.log(`[libraryWebDetection] image contentId=${contentId} matches=${matches.length}`);
+  return {
+    contentId,
+    fingerprint,
+    matches: matches.slice(0, 12),
+    queriesUsed,
+    warnings,
+  };
+}
+
+/**
+ * Run SerpAPI + chunk matching for one content row (metadata from DB).
+ */
+export async function scanSingleLibraryItem(row: LibraryContentRow): Promise<LibraryScanItemResult> {
+  const contentId = String(row.id);
+  const fileName = String(row.file_name ?? "untitled");
+  const contentHash = String(row.content_hash ?? "");
+  const textSnippet = row.text_snippet;
+  const fullText = row.full_text ?? null;
+  const fileType = String(row.file_type ?? "");
+  const isImageAsset = fileType.startsWith("image/") || fileType === "image";
+  const perceptualHash = row.perceptual_hash;
+  const assetText = isImageAsset
+    ? usableOcrText(fullText, textSnippet)
+    : normalizeText((fullText || textSnippet) ?? "").slice(0, MAX_ASSET_TEXT_FOR_DETECTION);
+
+  const fingerprint = fingerprintForRow(
+    contentId,
+    fileName,
+    contentHash,
+    assetText || textSnippet,
+    perceptualHash,
+  );
+  const warnings: string[] = [];
+
+  if (isImageAsset) {
+    return scanImageLibraryItem({
+      row,
+      contentId,
+      fileName,
+      contentHash,
+      assetText,
+      fingerprint,
+      warnings,
+      perceptualHash,
+    });
+  }
+
+  const chunks = extractContentChunks(assetText || null, fileName);
+  const queriesUsed = buildSearchQueries(fileName, assetText || null, contentHash);
+
+  console.log(`[libraryWebDetection] contentId=${contentId} chunks=${chunks.length} queries=${JSON.stringify(queriesUsed)}`);
+
+  if (!process.env.SERPAPI_KEY) {
+    warnings.push("SERPAPI_KEY not set — configure SerpAPI for live web search.");
+    return {
+      contentId,
+      fingerprint,
+      matches: [],
+      queriesUsed,
+      warnings,
+    };
+  }
+
+  if (chunks.length === 0 && !assetText.trim()) {
+    warnings.push(
+      "No extractable text stored for this asset — upload PDF, TXT, DOCX, or add optional OCR. Matches rely on filename/hash only.",
+    );
+  }
+
+  const matches = await scoreOrganicQueries({
+    queriesUsed,
+    chunks,
+    fileName,
+    assetText,
+    perceptualHash,
+    isImageAsset: false,
+  });
   matches.sort((a, b) => b.similarity - a.similarity);
 
-  console.log(`[libraryWebDetection] contentId=${contentId} matches=${matches.length} (from ${topOrganic.length} organic URLs)`);
+  console.log(`[libraryWebDetection] contentId=${contentId} matches=${matches.length}`);
 
   return {
     contentId,
