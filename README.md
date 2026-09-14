@@ -1,98 +1,332 @@
-# ContentGuard AI & Web3 Sports Media Platform
+# ContentGuard AI & Web3 Platform
 
-A modern, responsive platform for AI-powered sports media monitoring, registration, and ownership verification. This project leverages Web3 technologies and AI analysis to track media propagation, manage assets, and provide detailed analytics for content creators and rightsholders.
+ContentGuard is an AI-powered content protection and ownership platform designed to help creators and rights holders register, monitor, and protect their digital content.
+
+The platform combines AI-based content detection with Web3-based ownership verification to help identify unauthorized use and track the propagation of registered content across the web.
+
+---
 
 ## 🚀 Key Features
 
-- **Multi-tenant Dashboard**: Comprehensive overview of media performance, detections, and alerts.
-- **AI Media Detections**: Automated monitoring and analysis of media assets across platforms.
-- **Web3 Media Registration**: Secure registration of content ownership using blockchain technology.
-- **Content Library**: Sophisticated asset explorer for managing registered media.
-- **Advanced Analytics**: Detailed data visualization for media propagation and engagement.
-- **Automated Alerts**: Custom notification system for unauthorized usage or significant propagation events.
-- **Secure Authentication**: Integrated sign-in and user management.
+- **Content Registration**
+  - Register digital content such as images, documents, PDFs, slides, and text files.
+  - Create a verifiable record of content ownership.
+
+- **AI-Powered Content Detection**
+  - Analyze content for potential unauthorized usage.
+  - Detect matching or similar content across online sources.
+
+- **Web Monitoring**
+  - Scan web sources for potential copies or unauthorized distribution.
+  - Identify where registered content appears online.
+
+- **Ownership Verification**
+  - Use content hashes and Web3 technologies to establish ownership records.
+  - Maintain verifiable information associated with registered assets.
+
+- **Content Library**
+  - Manage and explore registered content.
+  - View content details, registration information, and detection results.
+
+- **Analytics & Monitoring**
+  - Track content propagation and detection activity.
+  - Visualize relevant content and monitoring information.
+
+- **Alerts**
+  - Notify users about potential unauthorized usage and important detection events.
+
+- **Secure Authentication**
+  - User authentication and account management.
+  - Role-based access to platform functionality.
+
+---
+
+## 🔄 How ContentGuard Works
+
+ContentGuard follows a simple three-step workflow:
+
+### 1. Upload Content
+
+Upload your digital content to ContentGuard.
+
+Supported content can include:
+
+- Images
+- PDFs
+- Slides
+- Documents
+- Text files
+
+The uploaded content can then be registered and associated with ownership information.
+
+### 2. AI Scans the Web
+
+ContentGuard analyzes registered content and searches for potential matches or unauthorized usage across online sources.
+
+The detection system can use techniques such as:
+
+- Perceptual hashing
+- OCR
+- Text similarity
+- Content matching
+- AI-based analysis
+
+### 3. Detect & Protect
+
+Potential matches are presented to the user with relevant detection information.
+
+Users can review detected content, monitor propagation, and take appropriate action to protect their intellectual property.
+
+---
 
 ## 🛠️ Tech Stack
 
-### Frontend (@workspace/contentguard)
-- **Framework**: [React 19](https://react.dev/) + [Vite](https://vitejs.dev/)
-- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/) + [Radix UI](https://www.radix-ui.com/)
-- **State Management**: [TanStack Query v5](https://tanstack.com/query)
-- **Animations**: [Framer Motion](https://www.framer.com/motion/)
-- **Routing**: [Wouter](https://github.com/molecula/wouter)
-- **Icons**: [Lucide React](https://lucide.dev/)
+### Frontend
 
-### Backend (@workspace/api-server)
-- **Runtime**: [Node.js](https://nodejs.org/)
-- **Framework**: [Express 5](https://expressjs.com/)
-- **Database ORM**: [Drizzle ORM](https://orm.drizzle.team/)
-- **Validation**: [Zod](https://zod.dev/)
-- **Logging**: [Pino](https://github.com/pinojs/pino)
+- **React 19**
+- **Vite**
+- **Tailwind CSS 4**
+- **Radix UI**
+- **TanStack Query v5**
+- **Framer Motion**
+- **Wouter**
+- **Lucide React**
+
+### Backend
+
+- **Node.js**
+- **Express 5**
+- **Drizzle ORM**
+- **Zod**
+- **Pino**
+
+### Web3 / Content Protection
+
+- Content hashing
+- Perceptual hashing
+- IPFS-based content storage
+- Blockchain-based ownership verification
+
+### AI / Detection
+
+- OCR
+- Image similarity
+- Text similarity
+- AI-assisted content analysis
+- Web monitoring
+
+---
 
 ## 📂 Project Structure
 
-This project is organized as a monorepo using npm workspaces:
+The project is organized as an npm-workspaces monorepo.
 
 ```text
+frontend/
+│
 ├── frontend-main/
+│   │
 │   ├── artifacts/
-│   │   ├── api-server/         # Express backend API
-│   │   ├── contentguard/       # Main React frontend application
-│   │   └── mockup-sandbox/     # Mockup/Sandbox environment for UI/UX testing
+│   │   ├── api-server/
+│   │   │   └── Express backend API
+│   │   │
+│   │   ├── contentguard/
+│   │   │   └── Main React frontend application
+│   │   │
+│   │   └── mockup-sandbox/
+│   │       └── UI/UX testing environment
+│   │
 │   ├── lib/
-│   │   ├── api-client-react/   # Shared React hooks for API interaction
-│   │   ├── api-spec/           # Shared API specifications
-│   │   ├── api-zod/            # Shared Zod schemas for validation
-│   │   └── db/                 # Database schema and repository layer
-│   └── scripts/                # Utility scripts for project maintenance
-└── README.md                   # Project documentation
+│   │   ├── api-client-react/
+│   │   │   └── Shared React API hooks
+│   │   │
+│   │   ├── api-spec/
+│   │   │   └── Shared API specifications
+│   │   │
+│   │   ├── api-zod/
+│   │   │   └── Shared validation schemas
+│   │   │
+│   │   └── db/
+│   │       └── Database schema and repository layer
+│   │
+│   └── scripts/
+│       └── Utility scripts
+│
+└── README.md
 ```
+
+---
 
 ## 🏁 Getting Started
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (Latest LTS version recommended)
-- [npm](https://www.npmjs.com/)
+Make sure you have the following installed:
 
-### Installation
+- [Node.js](https://nodejs.org/) — Latest LTS version recommended
+- npm
 
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd demo
-   ```
+You can verify your installations with:
 
-2. Install dependencies for all workspaces:
-   ```bash
-   cd frontend-main
-   npm install
-   ```
+```bash
+node --version
+npm --version
+```
 
-### Development
+---
 
-To start both the API server and the ContentGuard frontend concurrently:
+## 📥 Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/gt200506-sudo/frontend.git
+```
+
+Navigate into the project:
+
+```bash
+cd frontend
+```
+
+Then enter the main workspace:
+
+```bash
+cd frontend-main
+```
+
+Install all dependencies:
+
+```bash
+npm install
+```
+
+---
+
+## ▶️ Running the Project
+
+To start the API server and ContentGuard frontend together:
 
 ```bash
 npm run dev
 ```
 
-Alternatively, you can run individual workspaces:
+### Run the individual workspaces
+
+Start the backend API:
 
 ```bash
-# Start API Server
 npm run dev -w @workspace/api-server
+```
 
-# Start ContentGuard Frontend
+Start the ContentGuard frontend:
+
+```bash
 npm run dev -w @workspace/contentguard
+```
 
-# Start Mockup Sandbox
+Start the mockup sandbox:
+
+```bash
 npm run dev -w @workspace/mockup-sandbox
 ```
 
-### Building for Production
+---
+
+## 🏗️ Build for Production
 
 To build all workspaces:
 
 ```bash
 npm run build
+```
+
+---
+
+## 🔐 Environment Variables
+
+Create the required environment configuration files according to the services enabled in your local setup.
+
+Typical integrations may require credentials for:
+
+- Database
+- Authentication
+- AI services
+- Web search
+- IPFS / Pinata
+- Web3 services
+
+> Never commit API keys, private keys, passwords, or other secrets to GitHub.
+
+---
+
+## 🧩 Core Platform Flow
+
+```text
+                    ┌──────────────────┐
+                    │   Upload Content │
+                    └────────┬─────────┘
+                             │
+                             ▼
+                    ┌──────────────────┐
+                    │ Register Content │
+                    │  + Generate Hash │
+                    └────────┬─────────┘
+                             │
+                             ▼
+                    ┌──────────────────┐
+                    │   AI Scans Web  │
+                    │  for Potential  │
+                    │     Matches     │
+                    └────────┬─────────┘
+                             │
+                             ▼
+                    ┌──────────────────┐
+                    │ Detect & Analyze │
+                    │ Unauthorized Use │
+                    └────────┬─────────┘
+                             │
+                             ▼
+                    ┌──────────────────┐
+                    │ Monitor / Alert │
+                    │   / Protect     │
+                    └──────────────────┘
+```
+
+---
+
+## 🎯 Project Goals
+
+ContentGuard aims to provide creators and rights holders with a unified platform to:
+
+1. Register and establish ownership of digital content.
+2. Monitor where their content appears online.
+3. Detect potentially unauthorized usage.
+4. Analyze detected content using AI-based techniques.
+5. Maintain verifiable ownership information.
+6. Provide actionable monitoring and alerting.
+
+---
+
+## 🔮 Future Enhancements
+
+Potential future improvements include:
+
+- More advanced image and video similarity detection
+- Improved OCR-based matching
+- Automated copyright infringement reporting
+- Browser and social-media monitoring
+- Blockchain-based ownership certificates
+- Improved AI-powered detection
+- Real-time monitoring
+- Advanced analytics dashboards
+- Automated takedown workflows
+- Creator and rights-holder collaboration tools
+
+---
+
+## 🔗 Repository
+
+GitHub:
+
+https://github.com/gt200506-sudo/frontend
