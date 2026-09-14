@@ -54,8 +54,11 @@ async function uploadToPinata(filePath: string, fileName: string, ownerId: strin
   };
 
   if (!PINATA_JWT && (!PINATA_API_KEY || !PINATA_API_SECRET)) {
-    const err = new Error("Pinata credentials are missing");
-    (err as any).statusCode = 500;
+    console.error(
+      "Pinata credentials are missing. Set PINATA_JWT, or PINATA_API_KEY and PINATA_SECRET_API_KEY (or PINATA_API_SECRET), as server-side environment variables. Never expose these values to the client."
+    );
+    const err = new Error("File upload is temporarily unavailable. Please try again later.");
+    (err as any).statusCode = 503;
     throw err;
   }
 
@@ -261,11 +264,20 @@ router.post("/content/upload", (req, res) => {
         },
       });
     } catch (error: any) {
+      if (error?.statusCode === 503) {
+        return res.status(503).json({ error: "File upload is temporarily unavailable. Please try again later." });
+      }
       if (error?.response?.status === 401 || error?.response?.status === 403) {
-        return res.status(401).json({ error: "Pinata authentication failed. Check PINATA_JWT/API keys." });
+        console.error("Pinata authentication failed. Verify PINATA_JWT or PINATA_API_KEY/PINATA_SECRET_API_KEY on the server.");
+        return res.status(502).json({ error: "File upload is temporarily unavailable. Please try again later." });
       }
       console.error("Upload error:", error?.response?.data || error?.message || error);
-      return res.status(500).json({ error: "Upload failed", message: error?.message ?? "Unknown error" });
+      const rawMessage = String(error?.message ?? "Unknown error");
+      const hideFromClient = /pinata|PINATA_/i.test(rawMessage);
+      return res.status(500).json({
+        error: "Upload failed",
+        message: hideFromClient ? "Upload failed. Please try again later." : rawMessage,
+      });
     } finally {
       const file = (req as any).file;
       if (file?.path) {

@@ -117,12 +117,18 @@ export default function RegisterContent() {
       }
 
       const data = payload?.data;
+      const ipfsHash = data?.ipfsHash || payload?.ipfsHash || "";
+      const gatewayUrl =
+        data?.gatewayUrl || payload?.gatewayUrl || (ipfsHash ? `https://gateway.pinata.cloud/ipfs/${ipfsHash}` : "");
+      if (!ipfsHash) {
+        throw new Error("Upload completed but no content identifier was returned.");
+      }
       setUploadProgress(100);
       setUploadSuccess({
-        ipfsHash: data?.ipfsHash || "",
+        ipfsHash,
         contentHash: data?.contentHash || "",
         fileType: data?.fileType || selectedFile.type,
-        gatewayUrl: data?.gatewayUrl || `https://gateway.pinata.cloud/ipfs/${data?.ipfsHash || ""}`,
+        gatewayUrl,
       });
 
       setFormData((prev) => ({
@@ -136,7 +142,9 @@ export default function RegisterContent() {
 
       toast({ title: "Upload complete", description: "File uploaded to IPFS and registered with scan metadata." });
     } catch (error: any) {
-      setUploadError(error?.message || "Could not upload file.");
+      const raw = String(error?.message || "Could not upload file.");
+      const hidesConfig = /pinata credential|pinata authentication|PINATA_/i.test(raw);
+      setUploadError(hidesConfig ? "File upload is temporarily unavailable. Please try again later." : raw);
       setUploadProgress(0);
     } finally {
       setIsUploading(false);

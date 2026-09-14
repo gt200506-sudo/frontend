@@ -986,6 +986,534 @@
         ],
         "warnings": []
       }
+    },
+    {
+      "uuid": "d4bc0dfc-0f51-4078-b73d-1fa5e41a89c5",
+      "title": "29549.pdf",
+      "type": "document",
+      "description": "No extractable text for web detection (use text, PDF, DOCX, or clear image text).",
+      "extractedFullText": null,
+      "contentHash": "27e042a04e037c1dcf5a92123ee961c1991a3a93c219ce7e4d9e955953fbe000",
+      "perceptualHash": null,
+      "textFingerprint": null,
+      "fileSize": 507073,
+      "author": "Unknown Author",
+      "organization": "ContentGuard Community",
+      "similarityThreshold": 0.85,
+      "status": "active",
+      "detectionCount": 8,
+      "ipfsHash": "bafybeifdo5df66tsnlo3d3pkmhwpikpt4rx423e4qgoz4hu5bxycrrushe",
+      "ownerId": "gupta.kashish0403@gmail.com",
+      "registeredAt": "2026-09-14T11:00:38.156Z",
+      "id": 17,
+      "libraryMatches": {
+        "scannedAt": "2026-09-14T12:06:16.873Z",
+        "fingerprint": "830c2a9e780c06662a4b3ea94d4a485e6076d121c1353c6e2baddcac948be79c",
+        "matches": [
+          {
+            "url": "https://quillbot.com/image-tools/image-to-text",
+            "similarity": 40,
+            "status": "low",
+            "title": "Free Image to Text Converter Online | Extract Text Instantly",
+            "snippet": "Extract text from JPG, PNG & scanned documents online ・ provides clear, useful outputs. PDF to DOCX Converter ・ all major image formats, png, and .webp."
+          },
+          {
+            "url": "https://www.compdf.com/blog/extract-text-from-any-pdfs-with-ai-powered-ocr-sdk",
+            "similarity": 40,
+            "status": "low",
+            "title": "Accurate PDF Text Extraction with AI OCR SDK",
+            "snippet": "No extractable text for web detection (use text, PDF, DOCX, or clear image text)."
+          },
+          {
+            "url": "https://community.openai.com/t/chatgpt-error-no-text-could-be-extracted-from-this-file/1151477",
+            "similarity": 39,
+            "status": "low",
+            "title": "Chatgpt error: No text could be extracted from this file - Bugs",
+            "snippet": "ChatGPT only extracts text from PDFs that already contain searchable text. ChatGPT itself does not perform OCR directly on uploaded PDF files. ..."
+          },
+          {
+            "url": "https://www.adobe.com/acrobat/online/ocr-pdf.html",
+            "similarity": 37,
+            "status": "low",
+            "title": "Free OCR for PDF: Recognize text for a searchable PDF",
+            "snippet": "No extractable text for web detection (use text, PDF, DOCX, or clear image text)."
+          },
+          {
+            "url": "https://www.pdf2go.com/pdf-to-text",
+            "similarity": 36,
+            "status": "low",
+            "title": "Convert your PDF to text online - PDF2Go",
+            "snippet": "No extractable text for web detection (use text, PDF, DOCX, or clear image text)."
+          },
+          {
+            "url": "https://www.youtube.com/watch?v=1KDQZoRptt8",
+            "similarity": 34,
+            "status": "low",
+            "title": "Extract Text from Any Document with AI (OCR Tutorial)",
+            "snippet": "In this video we convert PDF documents to text using AI. Extract Text from Any Document with AI (OCR Tutorial) How I Automate Any PDF File By ..."
+          },
+          {
+            "url": "https://www.reddit.com/r/LocalLLaMA/comments/1502uc3/best_way_to_extract_text_from_pdf_docs_for/",
+            "similarity": 31,
+            "status": "low",
+            "title": "Best way to extract text from PDF docs for finetuning models?",
+            "snippet": "I have a bunch of (non-English) large PDF documents, and I want to extract the text out of them so I can then do finetuning of some models (not decided ..."
+          },
+          {
+            "url": "https://support.google.com/drive/answer/176692?hl=en&co=GENIE.Platform%3DDesktop",
+            "similarity": 29,
+            "status": "low",
+            "title": "Convert PDF and photo files to text - Computer",
+            "snippet": "You can convert image files to text with Google Drive. Text should be at least 10 pixels high. Use sharp images with even lighting and clear contrasts. might ..."
+          }
+        ],
+        "queriesUsed": [
+          "\"No extractable text for web detection (use text, PDF, DOCX, or clear image text).\"",
+          "29549 27e042a04e037c1d"
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "uuid": "c5b16ccd-9fdd-45bd-9a1a-ee9b81021ee4",
+      "title": "DECLARATION.pdf",
+      "type": "document",
+      "description": "No extractable text for web detection (use text, PDF, DOCX, or clear image text).",
+      "extractedFullText": null,
+      "contentHash": "8109a23d5d452f4ed3355382fe9c6d513d6fef7567a4302cbaf4545799d2570c",
+      "perceptualHash": null,
+      "textFingerprint": null,
+      "fileSize": 3719249,
+      "author": "Unknown Author",
+      "organization": "ContentGuard Community",
+      "similarityThreshold": 0.85,
+      "status": "active",
+      "detectionCount": 8,
+      "ipfsHash": "bafybeidmhe6auxjp4awsm5dvnkpb2xabtiobtsab7cohevxdgnt6yrgyuq",
+      "ownerId": "gupta.kashish0403@gmail.com",
+      "registeredAt": "2026-09-14T11:06:23.267Z",
+      "id": 18,
+      "libraryMatches": {
+        "scannedAt": "2026-09-14T12:06:16.878Z",
+        "fingerprint": "2111ff6b70fd88638d2a9efc64923858e35328ed3ca97428950ecdd577eb4dda",
+        "matches": [
+          {
+            "url": "https://quillbot.com/image-tools/image-to-text",
+            "similarity": 40,
+            "status": "low",
+            "title": "Free Image to Text Converter Online | Extract Text Instantly",
+            "snippet": "Extract text from JPG, PNG & scanned documents online ・ provides clear, useful outputs. PDF to DOCX Converter ・ all major image formats, png, and .webp."
+          },
+          {
+            "url": "https://www.compdf.com/blog/extract-text-from-any-pdfs-with-ai-powered-ocr-sdk",
+            "similarity": 40,
+            "status": "low",
+            "title": "Accurate PDF Text Extraction with AI OCR SDK",
+            "snippet": "No extractable text for web detection (use text, PDF, DOCX, or clear image text)."
+          },
+          {
+            "url": "https://community.openai.com/t/chatgpt-error-no-text-could-be-extracted-from-this-file/1151477",
+            "similarity": 39,
+            "status": "low",
+            "title": "Chatgpt error: No text could be extracted from this file - Bugs",
+            "snippet": "ChatGPT only extracts text from PDFs that already contain searchable text. ChatGPT itself does not perform OCR directly on uploaded PDF files. ..."
+          },
+          {
+            "url": "https://www.adobe.com/acrobat/online/ocr-pdf.html",
+            "similarity": 37,
+            "status": "low",
+            "title": "Free OCR for PDF: Recognize text for a searchable PDF",
+            "snippet": "No extractable text for web detection (use text, PDF, DOCX, or clear image text)."
+          },
+          {
+            "url": "https://www.pdf2go.com/pdf-to-text",
+            "similarity": 36,
+            "status": "low",
+            "title": "Convert your PDF to text online - PDF2Go",
+            "snippet": "No extractable text for web detection (use text, PDF, DOCX, or clear image text)."
+          },
+          {
+            "url": "https://www.youtube.com/watch?v=1KDQZoRptt8",
+            "similarity": 34,
+            "status": "low",
+            "title": "Extract Text from Any Document with AI (OCR Tutorial)",
+            "snippet": "In this video we convert PDF documents to text using AI. Extract Text from Any Document with AI (OCR Tutorial) How I Automate Any PDF File By ..."
+          },
+          {
+            "url": "https://www.reddit.com/r/LocalLLaMA/comments/1502uc3/best_way_to_extract_text_from_pdf_docs_for/",
+            "similarity": 31,
+            "status": "low",
+            "title": "Best way to extract text from PDF docs for finetuning models?",
+            "snippet": "I have a bunch of (non-English) large PDF documents, and I want to extract the text out of them so I can then do finetuning of some models (not decided ..."
+          },
+          {
+            "url": "https://support.google.com/drive/answer/176692?hl=en&co=GENIE.Platform%3DDesktop",
+            "similarity": 29,
+            "status": "low",
+            "title": "Convert PDF and photo files to text - Computer",
+            "snippet": "You can convert image files to text with Google Drive. Text should be at least 10 pixels high. Use sharp images with even lighting and clear contrasts. might ..."
+          }
+        ],
+        "queriesUsed": [
+          "\"No extractable text for web detection (use text, PDF, DOCX, or clear image text).\"",
+          "DECLARATION 8109a23d5d452f4e"
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "uuid": "14030b67-3e0a-4d97-b31a-3888ff3d1b4f",
+      "title": "2.png",
+      "type": "image",
+      "description": "No extractable text for web detection (use text, PDF, DOCX, or clear image text).",
+      "extractedFullText": null,
+      "contentHash": "c66aec82ff3b98c64e0f9f72c63c03e31605f67b7b6d1a958330dd0b354d1e57",
+      "perceptualHash": "1111000001100011110100001110000000001111000111110000011100010111",
+      "textFingerprint": null,
+      "fileSize": 1714899,
+      "author": "Unknown Author",
+      "organization": "ContentGuard Community",
+      "similarityThreshold": 0.85,
+      "status": "active",
+      "detectionCount": 0,
+      "ipfsHash": "bafybeidcfohm5fby7nextedk4eixahptq36wr2435c2qvslv7uvtjcxhda",
+      "ownerId": "gupta.kashish0403@gmail.com",
+      "registeredAt": "2026-09-14T11:14:37.882Z",
+      "id": 19,
+      "libraryMatches": {
+        "scannedAt": "2026-09-14T12:06:16.882Z",
+        "fingerprint": "1495927031fea6fef59dc70e69e9208c9220a545bb32ed9320f34d204f9a17a0",
+        "matches": [],
+        "queriesUsed": [
+          "reverse-image:https://gateway.pinata.cloud/ipfs/bafybeidcfohm5fby7nextedk4eixahptq36wr2435c2qvslv7uvtjcxhda"
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "uuid": "71a8a3e7-5378-45c6-a903-9249ee3ce004",
+      "title": "mnlVCqjRrWxYMWJ1cpAgkdOXKWPABzU7UaRoX-v5Go9nxBH4zu4gp6PSEccT21xITDJHfoZnVdvERj-kkbRg346lUAi3IEVDpXWSQZFg8QP8vMHJidjwsfS0j8Ghf8YeDqF_P6tCtusev-nKKoEhb3xbt5Ieb49T7f3PYT4cHenvpFGpYZk_SH1zeB41gQBq.jpg",
+      "type": "image",
+      "description": "No extractable text for web detection (use text, PDF, DOCX, or clear image text).",
+      "extractedFullText": null,
+      "contentHash": "c41e49c1bccc849db4602b491870e940e3fbbf3440e41ddfe10f97ffa08c5f88",
+      "perceptualHash": "0010001100100110111111100001101111001011111001000011110010010001",
+      "textFingerprint": null,
+      "fileSize": 163909,
+      "author": "Unknown Author",
+      "organization": "ContentGuard Community",
+      "similarityThreshold": 0.85,
+      "status": "active",
+      "detectionCount": 0,
+      "ipfsHash": "bafkreigedze4dpgmqso3iybljemhb2ka4p536nca4qo57yips772bdc7ra",
+      "ownerId": "gupta.kashish0403@gmail.com",
+      "registeredAt": "2026-09-14T11:16:31.994Z",
+      "id": 20,
+      "libraryMatches": {
+        "scannedAt": "2026-09-14T12:06:16.887Z",
+        "fingerprint": "c07ac6aa6796aba060b97cc84bcddd90ca36d711ee452c929f4d1cc66eb7a700",
+        "matches": [],
+        "queriesUsed": [
+          "reverse-image:https://gateway.pinata.cloud/ipfs/bafkreigedze4dpgmqso3iybljemhb2ka4p536nca4qo57yips772bdc7ra"
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "uuid": "d806f545-0248-4707-ad75-7a2c0cedd338",
+      "title": "Mona_Lisa.jpg",
+      "type": "image",
+      "description": "No extractable text for web detection (use text, PDF, DOCX, or clear image text).",
+      "extractedFullText": null,
+      "contentHash": "0403529ec3f8ec8ef9900fd6c49b341da6235a07a9a8a44f75e628b93980e07d",
+      "perceptualHash": "0110101011100100001101001001101111000011011111100100110011000010",
+      "textFingerprint": null,
+      "fileSize": 3506068,
+      "author": "Unknown Author",
+      "organization": "ContentGuard Community",
+      "similarityThreshold": 0.85,
+      "status": "active",
+      "detectionCount": 8,
+      "ipfsHash": "bafybeif4a6p3flxugy2oml6xpsysgx6bo2p6td6qp4aj4rlkjaltkpjf6u",
+      "ownerId": "gupta.kashish0403@gmail.com",
+      "registeredAt": "2026-09-14T11:22:13.522Z",
+      "id": 21,
+      "libraryMatches": {
+        "scannedAt": "2026-09-14T12:06:16.892Z",
+        "fingerprint": "98e3155db34222cae1660af118a630da06cd4c39b3249c914ef6a4750f128661",
+        "matches": [
+          {
+            "url": "https://en.wikipedia.org/wiki/Mona_Lisa",
+            "similarity": 88,
+            "status": "high",
+            "title": "Mona Lisa",
+            "snippet": "The Mona Lisa is a half-length portrait painting by the Italian artist Leonardo da Vinci. Considered an archetypal masterpiece of the Italian Renaissance, ..."
+          },
+          {
+            "url": "https://en.wikipedia.org/wiki/File:Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
+            "similarity": 84,
+            "status": "high",
+            "title": "File:Mona Lisa, by Leonardo da Vinci, from C2RMF ...",
+            "snippet": "Italian painter, engineer, astronomer, anatomist, mathematician and sculptor. National Gallery of Art, 8 January 1967 - 3 February 1963"
+          },
+          {
+            "url": "https://en.wikipedia.org/wiki/File:Mona_Lisa.jpg",
+            "similarity": 80,
+            "status": "high",
+            "title": "File:Mona Lisa.jpg",
+            "snippet": "Mona Lisa by Leonardo da Vinci, National Gallery of Art, 8 January 1967. This is a faithful photographic reproduction of a two-dimensional, public domain work ..."
+          },
+          {
+            "url": "https://www.britannica.com/topic/Mona-Lisa-painting",
+            "similarity": 76,
+            "status": "high",
+            "title": "Mona Lisa | Painting, Painter, History, Meaning, & Facts",
+            "snippet": "Mona Lisa, oil painting on a poplar wood panel by Leonardo da Vinci, probably the world's most famous painting. It was painted sometime between 1503 and 1519,"
+          },
+          {
+            "url": "https://www.facebook.com/artpeople1/videos/mona-lisa/372973505544346/",
+            "similarity": 72,
+            "status": "medium",
+            "title": "The Mona Lisa is a half-length portrait painting by Italian artist ...",
+            "snippet": "The Mona Lisa is a half-length portrait painting by Italian artist Leonardo da Vinci. Considered an archetypal masterpiece of the Italian ..."
+          },
+          {
+            "url": "https://www.youtube.com/watch?v=02EwPKB1-5g",
+            "similarity": 68,
+            "status": "medium",
+            "title": "Leonardo da Vinci | The Mona Lisa",
+            "snippet": "Leonardo da Vinci's painting of The Mona Lisa, also called La Gioconda has captured society's collective imagination."
+          },
+          {
+            "url": "https://www.gettyimages.com/photos/leonardo-da-vinci-mona-lisa",
+            "similarity": 64,
+            "status": "medium",
+            "title": "Leonardo Da Vinci Mona Lisa Stock Photos",
+            "snippet": "Also known as La Gioconda, the Mona Lisa is the most famous painting in Western art... Also known as La Gioconda, the Mona Lisa is the most famous painting in ..."
+          },
+          {
+            "url": "https://www.bbc.co.uk/science/leonardo/gallery/monalisa.shtml",
+            "similarity": 60,
+            "status": "medium",
+            "title": "Science & Nature - Leonardo - Mona Lisa",
+            "snippet": "An introduction to the Mona Lisa with bbc.co.uk's guide to Leonardo da Vinci - the man who wanted to know everything."
+          }
+        ],
+        "queriesUsed": [
+          "reverse-image:https://gateway.pinata.cloud/ipfs/bafybeif4a6p3flxugy2oml6xpsysgx6bo2p6td6qp4aj4rlkjaltkpjf6u"
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "uuid": "3c349c7f-b413-41ab-a343-f9f4c2b13028",
+      "title": "NOMu8dZ4bJMOstRUyTf1CiRWC3cVLSTVL2qSdikaoPK8r0HeBtI6r7Xf657KGljneyConE8rMSokVQKgbHMkT_ip7D8Iu4MVkPSPt_VE10_R-oj3O9TFHXNeSbVRVVOzWAOvN1cJ2gncSfoF8hAWCKkHHH9KtocG_sg0PBSt1RWCRjAAsD0HNY1tH81TfYee.jpg",
+      "type": "image",
+      "description": "No extractable text for web detection (use text, PDF, DOCX, or clear image text).",
+      "extractedFullText": null,
+      "contentHash": "a6d7699de40043d373d1353e8e673cf5af81256f90ac53830ef2077ef151bef0",
+      "perceptualHash": "0000011000111000111101011010101010011000100001111011101011110110",
+      "textFingerprint": null,
+      "fileSize": 76694,
+      "author": "Unknown Author",
+      "organization": "ContentGuard Community",
+      "similarityThreshold": 0.85,
+      "status": "active",
+      "detectionCount": 0,
+      "ipfsHash": "bafkreifg25uz3zaaipjxhujvh2hgophvv6ask34qvrjygdxsa57pcun66a",
+      "ownerId": "gupta.kashish0403@gmail.com",
+      "registeredAt": "2026-09-14T11:33:06.032Z",
+      "id": 22,
+      "libraryMatches": {
+        "scannedAt": "2026-09-14T12:06:16.896Z",
+        "fingerprint": "f8b8dbbe4b2de2bef959d51cc5d7537196dc54105aff872819d0f09eb3a5d435",
+        "matches": [],
+        "queriesUsed": [
+          "reverse-image:https://gateway.pinata.cloud/ipfs/bafkreifg25uz3zaaipjxhujvh2hgophvv6ask34qvrjygdxsa57pcun66a"
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "uuid": "31b8d7f4-fa50-48d2-8d7c-96d3bab7e4a4",
+      "title": "Screenshot 2026-09-14 173004.png",
+      "type": "image",
+      "description": "No extractable text for web detection (use text, PDF, DOCX, or clear image text).",
+      "extractedFullText": null,
+      "contentHash": "e1aa48d4b694e9fe581be5dc565964a333cb90f1301d016e27638cf9c417225f",
+      "perceptualHash": "0111011101110101100011000010011000110111110110100110001111100010",
+      "textFingerprint": null,
+      "fileSize": 376932,
+      "author": "Unknown Author",
+      "organization": "ContentGuard Community",
+      "similarityThreshold": 0.85,
+      "status": "active",
+      "detectionCount": 9,
+      "ipfsHash": "bafybeih2qvipdfoanggtya7wxotjneqw3m2uufw2jt5rg7ivxtxnzgbvbe",
+      "ownerId": "gupta.kashish0403@gmail.com",
+      "registeredAt": "2026-09-14T12:00:47.835Z",
+      "id": 23,
+      "libraryMatches": {
+        "scannedAt": "2026-09-14T12:06:16.900Z",
+        "fingerprint": "bfb0c196e1ddf13c0b877b2aa7bdaa598b318af2706ce3f7f73d5c23a78acfb3",
+        "matches": [
+          {
+            "url": "https://en.wikipedia.org/wiki/Charaxes_jasius",
+            "similarity": 88,
+            "status": "high",
+            "title": "Charaxes jasius",
+            "snippet": "Charaxes jasius, the two-tailed pasha, is a butterfly in the family Nymphalidae. It is the only European species of the genus Charaxes."
+          },
+          {
+            "url": "https://www.facebook.com/MyButterflyLady/posts/today-is-the-day-to-go-out-and-take-photos-of-butterflies-dont-forget-to-upload-/1523743073116309/",
+            "similarity": 84,
+            "status": "high",
+            "title": "Butterfly Big Day: Take and share ... - Facebook",
+            "snippet": "To take part, get yourself a copy of the butterfly ID sheet, choose a place to spot butterflies and moths. Watch for 15 minutes. Then record ..."
+          },
+          {
+            "url": "https://meta.wikimedia.org/wiki/Wiki_Loves_Butterfly",
+            "similarity": 80,
+            "status": "high",
+            "title": "Wiki Loves Butterfly - Meta-Wiki - Wikimedia",
+            "snippet": "Butterflies provide a wide range of environmental and ecological benefits and issues. They are the prime most diurnal pollinators."
+          },
+          {
+            "url": "https://www.floridamuseum.ufl.edu/exhibits/butterflies/blue-spotted-charaxes/",
+            "similarity": 76,
+            "status": "high",
+            "title": "Blue-spotted Charaxes - Florida Museum of Natural History",
+            "snippet": "Female Blue spotted Charaxes Butterfly with open wings is brown with wide white bands. light blue spots. 3.1 to 3.8 in Place of origin: East Africa"
+          },
+          {
+            "url": "https://en.wikipedia.org/wiki/Charaxes_antiquus",
+            "similarity": 72,
+            "status": "medium",
+            "title": "Charaxes antiquus",
+            "snippet": "Charaxes antiquus is a butterfly in the family Nymphalidae. It is found on the island of São Tomé. forests and woodland. The species was named by James John ..."
+          },
+          {
+            "url": "https://www.onthewingphotography.com/wings/2024/10/09/striking-gulf-fritillary-butterfly-in-arkansas/",
+            "similarity": 68,
+            "status": "medium",
+            "title": "Striking Gulf Fritillary Butterfly In Arkansas",
+            "snippet": "It has been four days since I photographed this Gulf Fritillary butterfly, which was around the time I noticed my external hard drive was ..."
+          },
+          {
+            "url": "https://www.facebook.com/100064705297551/posts/could-it-be-a-wild-charaxes-cynthiacharaxes-cynthia-butterfly-nymphalidae-cute-p/1126861932813973/",
+            "similarity": 64,
+            "status": "medium",
+            "title": "Could it be a wild Charaxes cynthia ...",
+            "snippet": "Could it be a wild Charaxes cynthia? This smooth jazz was made to be Cynthia's soundtrack. Very stinky things like poop/carrion/rotting fruit..."
+          },
+          {
+            "url": "https://www.pinterest.com/fatimahniyazi/charaxes-butterflies/",
+            "similarity": 60,
+            "status": "medium",
+            "title": "Discover 260 Charaxes Butterflies",
+            "snippet": "From charaxes butterfly to insects, Charaxes Butterflies: Includes Charaxes: Acraeoides, Antamboulou, Ameliae, Aristogiton, Bohemani, Brutus, Cacuthis, ..."
+          },
+          {
+            "url": "https://www.theguardian.com/environment/ng-interactive/2026/mar/18/butterflies-crossing-oceans-moths-navigating-stars-insect-migrations-aoe",
+            "similarity": 56,
+            "status": "medium",
+            "title": "Butterflies crossing oceans, moths navigating by the stars",
+            "snippet": "Trillions of insects embark, largely unnoticed, on epic journeys every year across mountain ranges, deserts and seas, and it is only now, ..."
+          }
+        ],
+        "queriesUsed": [
+          "reverse-image:https://gateway.pinata.cloud/ipfs/bafybeih2qvipdfoanggtya7wxotjneqw3m2uufw2jt5rg7ivxtxnzgbvbe"
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "uuid": "860cfedd-e0e1-4d34-8a06-f93a6a92eb2e",
+      "title": "Untitled-1.txt",
+      "type": "document",
+      "description": "Taxonomy The species is sometimes treated as a subspecies of Charaxes candiope.[2][4][5] It is considered part of the Charaxes candiope group.[6] Realm Afrotropical realm. References Wikimedia Commons logo Wikimedia Commons has media related to Charaxes thomasius. Staudinger, O. 1886 in Staudinger, O. and Schatz, E.",
+      "extractedFullText": "Taxonomy The species is sometimes treated as a subspecies of Charaxes candiope.[2][4][5] It is considered part of the Charaxes candiope group.[6] Realm Afrotropical realm. References Wikimedia Commons logo Wikimedia Commons has media related to Charaxes thomasius. Staudinger, O. 1886 in Staudinger, O. and Schatz, E. 1884–1888. Exotische Schmetterlinge 1: vi + 1–333. Bayern Savela, Markku. \"Charaxes Ochsenheimer, 1816\". Lepidoptera and some other life forms. Retrieved 4 September 2024. Charaxes thomasius Staudinger, 1886. Retrieved through: Interim Register of Marine and Nonmarine Genera on 21 January 2019. Williams, Mark C. (2008). \"Butterflies and Skippers of the Afrotropical Region (Papilionoidea and Hesperioidea): File H – Charaxinae (Nymphalidae)\". Archived from the original on 9 November 2013. Retrieved 2019-01-21. \"Charaxes candiope thomasius Staudinger, 1886\". Global Lepidoptera Index 1.1.24.240. 27 August 2024. Retrieved 4 September 2024. Vingerhoedt, Eric (2013). \"African Charaxes/Charaxes Africains\". External links Charaxes thomasius images at Consortium for the Barcode of Life Taxon identifiers Charaxes thomasius Wikidata: Q5074115Wikispecies: Charaxes thomasiusCoL: 9BVKMGBIF (old): 5129053iNaturalist: 357515Insecta.pro: 53854IRMNG: 10274284LepIndex: 164908Observation.org: 226404",
+      "contentHash": "934efb00d294a64091819c3cc7430d84ae6102d881b53e6c20e9ca5d5cb8af09",
+      "perceptualHash": null,
+      "textFingerprint": null,
+      "fileSize": 1347,
+      "author": "Unknown Author",
+      "organization": "ContentGuard Community",
+      "similarityThreshold": 0.85,
+      "status": "active",
+      "detectionCount": 8,
+      "ipfsHash": "bafkreietj35qbuuuuzajdam4htdugdmevzqqfwebwu7gyihjzjovzofpbe",
+      "ownerId": "gupta.kashish0403@gmail.com",
+      "registeredAt": "2026-09-14T12:02:11.248Z",
+      "id": 24,
+      "libraryMatches": {
+        "scannedAt": "2026-09-14T12:06:16.905Z",
+        "fingerprint": "a88dbae8223706f587225ee5804cc95ab2d72a30375f2399f1eafc65981fec78",
+        "matches": [
+          {
+            "url": "https://en.wikipedia.org/wiki/Charaxes_candiope",
+            "similarity": 96,
+            "status": "high",
+            "title": "Charaxes candiope",
+            "snippet": "Lepidoptera and some other life forms."
+          },
+          {
+            "url": "https://www.semulikibutterflies.com/genus-charaxes",
+            "similarity": 96,
+            "status": "high",
+            "title": "Genus Charaxes | Semuliki National Park | semulikibutterflies",
+            "snippet": "Lepidoptera and some other life forms."
+          },
+          {
+            "url": "https://tb.plazi.org/GgServer/html/03E687FCFFB7FF94495EFF6DFD67FCD1",
+            "similarity": 48,
+            "status": "low",
+            "title": "Charaxes ( Charaxes ) candiope candiope Godart, 1824",
+            "snippet": "Taxonomy ; Class. Insecta ; Order. Lepidoptera ; SuperFamily. Papilionoidea ; Family. Nymphalidae ; SubFamily. Charaxinae."
+          },
+          {
+            "url": "https://www.gbif.org/taxon/TN4N",
+            "similarity": 48,
+            "status": "low",
+            "title": "Charaxes candiope (Godart, 1824)",
+            "snippet": "Species Accepted Charaxes candiope (Godart, 1824) Green-veined Charaxes EukaryotaAnimalia...Charaxes. Synonyms and combinations ≡ Nymphalis candiope Godart,"
+          },
+          {
+            "url": "https://www.inaturalist.org/taxa/136464-Charaxes-candiope",
+            "similarity": 47,
+            "status": "low",
+            "title": "Green-veined Emperor (Charaxes candiope)",
+            "snippet": "Charaxes candiope, the green-veined emperor or. Introduced means it arrived because of human activity, while native means it arrived without human assistance. ..."
+          },
+          {
+            "url": "https://www.metamorphosis.org.za/articlesPDF/1278/390%20Genus%20Charaxes%20Ochsenheimer.pdf",
+            "similarity": 45,
+            "status": "low",
+            "title": "390 Genus Charaxes Ochsenheimer",
+            "snippet": "Turlin (2005) opines that this very distinctive subspecies may warrant full species status but does not formally emend its taxonomic status."
+          },
+          {
+            "url": "https://www.floridamuseum.ufl.edu/exhibits/butterflies/green-veined-charaxes/",
+            "similarity": 44,
+            "status": "low",
+            "title": "Green veined Charaxes - Florida Museum of Natural History",
+            "snippet": "Taxonomy The species is sometimes treated as a subspecies of Charaxes candiope.[2][4][5] It is considered part of the Charaxes candiope group.[6] Realm Afrotrop"
+          },
+          {
+            "url": "https://zenodo.org/records/14119408",
+            "similarity": 43,
+            "status": "low",
+            "title": "The genera of the tribe Charaxini (Papilionoidea, ...",
+            "snippet": "Taxonomy The species is sometimes treated as a subspecies of Charaxes candiope.[2][4][5] It is considered part of the Charaxes candiope group.[6] Realm Afrotrop"
+          }
+        ],
+        "queriesUsed": [
+          "\"Taxonomy The species is sometimes treated as a subspecies of Charaxes candiope.[2][4][5] It is considered part\"",
+          "Untitled 1 References Wikimedia Commons logo Wikimedia Commons has media related to Charaxes thomasiu",
+          "Exotische Schmetterlinge 1: vi + 1–333."
+        ],
+        "warnings": []
+      }
     }
   ],
   "detection": [
@@ -2248,6 +2776,141 @@
       "detectedAt": "2026-09-13T16:23:26.882Z",
       "ownerId": "gt.200506@gmail.com",
       "id": 84
+    },
+    {
+      "uuid": "22e73ddd-bb89-4bd4-8e01-2dca7a1bb21e",
+      "contentId": "31b8d7f4-fa50-48d2-8d7c-96d3bab7e4a4",
+      "contentTitle": "Screenshot 2026-09-14 173004.png",
+      "similarityScore": 0.82,
+      "detectionType": "visual",
+      "sourceUrl": "https://en.wikipedia.org/wiki/Charaxes_jasius",
+      "sourcePlatform": "en.wikipedia.org",
+      "status": "pending",
+      "excerpt": "Charaxes jasius, the two-tailed pasha, is a butterfly in the family Nymphalidae. It is the only European species of the genus Charaxes.",
+      "aiAnalysis": "Potential piracy (visual). Confidence 82.0%.",
+      "detectedAt": "2026-09-14T12:02:21.577Z",
+      "ownerId": "gupta.kashish0403@gmail.com",
+      "id": 85
+    },
+    {
+      "uuid": "b6da2d25-dfb4-45d0-a1d5-539f76fbcc0d",
+      "contentId": "31b8d7f4-fa50-48d2-8d7c-96d3bab7e4a4",
+      "contentTitle": "Screenshot 2026-09-14 173004.png",
+      "similarityScore": 0.82,
+      "detectionType": "visual",
+      "sourceUrl": "https://www.facebook.com/MyButterflyLady/posts/today-is-the-day-to-go-out-and-take-photos-of-butterflies-dont-forget-to-upload-/1523743073116309/",
+      "sourcePlatform": "facebook.com",
+      "status": "pending",
+      "excerpt": "To take part, get yourself a copy of the butterfly ID sheet, choose a place to spot butterflies and moths. Watch for 15 minutes. Then record ...",
+      "aiAnalysis": "Potential piracy (visual). Confidence 82.0%.",
+      "detectedAt": "2026-09-14T12:02:21.577Z",
+      "ownerId": "gupta.kashish0403@gmail.com",
+      "id": 86
+    },
+    {
+      "uuid": "4c1155eb-2581-4c5d-9f03-4edc24c709a6",
+      "contentId": "31b8d7f4-fa50-48d2-8d7c-96d3bab7e4a4",
+      "contentTitle": "Screenshot 2026-09-14 173004.png",
+      "similarityScore": 0.82,
+      "detectionType": "visual",
+      "sourceUrl": "https://meta.wikimedia.org/wiki/Wiki_Loves_Butterfly",
+      "sourcePlatform": "meta.wikimedia.org",
+      "status": "pending",
+      "excerpt": "Butterflies provide a wide range of environmental and ecological benefits and issues. They are the prime most diurnal pollinators.",
+      "aiAnalysis": "Potential piracy (visual). Confidence 82.0%.",
+      "detectedAt": "2026-09-14T12:02:21.577Z",
+      "ownerId": "gupta.kashish0403@gmail.com",
+      "id": 87
+    },
+    {
+      "uuid": "66ea12b7-d831-4cc8-8e77-74eaea5f85e0",
+      "contentId": "31b8d7f4-fa50-48d2-8d7c-96d3bab7e4a4",
+      "contentTitle": "Screenshot 2026-09-14 173004.png",
+      "similarityScore": 0.82,
+      "detectionType": "visual",
+      "sourceUrl": "https://www.floridamuseum.ufl.edu/exhibits/butterflies/blue-spotted-charaxes/",
+      "sourcePlatform": "floridamuseum.ufl.edu",
+      "status": "pending",
+      "excerpt": "Female Blue spotted Charaxes Butterfly with open wings is brown with wide white bands. light blue spots. 3.1 to 3.8 in Place of origin: East Africa",
+      "aiAnalysis": "Potential piracy (visual). Confidence 82.0%.",
+      "detectedAt": "2026-09-14T12:02:21.577Z",
+      "ownerId": "gupta.kashish0403@gmail.com",
+      "id": 88
+    },
+    {
+      "uuid": "31cf8371-149b-459d-9f14-f7741909b48d",
+      "contentId": "31b8d7f4-fa50-48d2-8d7c-96d3bab7e4a4",
+      "contentTitle": "Screenshot 2026-09-14 173004.png",
+      "similarityScore": 0.82,
+      "detectionType": "visual",
+      "sourceUrl": "https://en.wikipedia.org/wiki/Charaxes_antiquus",
+      "sourcePlatform": "en.wikipedia.org",
+      "status": "pending",
+      "excerpt": "Charaxes antiquus is a butterfly in the family Nymphalidae. It is found on the island of São Tomé. forests and woodland. The species was named by James John ...",
+      "aiAnalysis": "Potential piracy (visual). Confidence 82.0%.",
+      "detectedAt": "2026-09-14T12:02:21.577Z",
+      "ownerId": "gupta.kashish0403@gmail.com",
+      "id": 89
+    },
+    {
+      "uuid": "b17b2fe0-d56f-4693-a889-a35df886479e",
+      "contentId": "31b8d7f4-fa50-48d2-8d7c-96d3bab7e4a4",
+      "contentTitle": "Screenshot 2026-09-14 173004.png",
+      "similarityScore": 0.82,
+      "detectionType": "visual",
+      "sourceUrl": "https://www.onthewingphotography.com/wings/2024/10/09/striking-gulf-fritillary-butterfly-in-arkansas/",
+      "sourcePlatform": "onthewingphotography.com",
+      "status": "pending",
+      "excerpt": "It has been four days since I photographed this Gulf Fritillary butterfly, which was around the time I noticed my external hard drive was ...",
+      "aiAnalysis": "Potential piracy (visual). Confidence 82.0%.",
+      "detectedAt": "2026-09-14T12:02:21.577Z",
+      "ownerId": "gupta.kashish0403@gmail.com",
+      "id": 90
+    },
+    {
+      "uuid": "e9700626-3154-4e36-a862-286f7f1272eb",
+      "contentId": "31b8d7f4-fa50-48d2-8d7c-96d3bab7e4a4",
+      "contentTitle": "Screenshot 2026-09-14 173004.png",
+      "similarityScore": 0.82,
+      "detectionType": "visual",
+      "sourceUrl": "https://www.facebook.com/100064705297551/posts/could-it-be-a-wild-charaxes-cynthiacharaxes-cynthia-butterfly-nymphalidae-cute-p/1126861932813973/",
+      "sourcePlatform": "facebook.com",
+      "status": "pending",
+      "excerpt": "Could it be a wild Charaxes cynthia? This smooth jazz was made to be Cynthia's soundtrack. Very stinky things like poop/carrion/rotting fruit...",
+      "aiAnalysis": "Potential piracy (visual). Confidence 82.0%.",
+      "detectedAt": "2026-09-14T12:02:21.577Z",
+      "ownerId": "gupta.kashish0403@gmail.com",
+      "id": 91
+    },
+    {
+      "uuid": "790a30f6-c812-417e-b120-056b8522ca04",
+      "contentId": "31b8d7f4-fa50-48d2-8d7c-96d3bab7e4a4",
+      "contentTitle": "Screenshot 2026-09-14 173004.png",
+      "similarityScore": 0.82,
+      "detectionType": "visual",
+      "sourceUrl": "https://www.pinterest.com/fatimahniyazi/charaxes-butterflies/",
+      "sourcePlatform": "pinterest.com",
+      "status": "pending",
+      "excerpt": "From charaxes butterfly to insects, Charaxes Butterflies: Includes Charaxes: Acraeoides, Antamboulou, Ameliae, Aristogiton, Bohemani, Brutus, Cacuthis, ...",
+      "aiAnalysis": "Potential piracy (visual). Confidence 82.0%.",
+      "detectedAt": "2026-09-14T12:02:21.577Z",
+      "ownerId": "gupta.kashish0403@gmail.com",
+      "id": 92
+    },
+    {
+      "uuid": "9c76aea9-8f29-48f9-b397-06a46aeaef0e",
+      "contentId": "31b8d7f4-fa50-48d2-8d7c-96d3bab7e4a4",
+      "contentTitle": "Screenshot 2026-09-14 173004.png",
+      "similarityScore": 0.82,
+      "detectionType": "visual",
+      "sourceUrl": "https://www.theguardian.com/environment/ng-interactive/2026/mar/18/butterflies-crossing-oceans-moths-navigating-stars-insect-migrations-aoe",
+      "sourcePlatform": "theguardian.com",
+      "status": "pending",
+      "excerpt": "Trillions of insects embark, largely unnoticed, on epic journeys every year across mountain ranges, deserts and seas, and it is only now, ...",
+      "aiAnalysis": "Potential piracy (visual). Confidence 82.0%.",
+      "detectedAt": "2026-09-14T12:02:21.577Z",
+      "ownerId": "gupta.kashish0403@gmail.com",
+      "id": 93
     }
   ],
   "alert": [
@@ -2412,6 +3075,78 @@
       "uploadedAt": "2026-09-13T16:28:34.359Z",
       "scanResults": [],
       "id": 9
+    },
+    {
+      "userId": "gupta.kashish0403@gmail.com",
+      "fileName": "29549.pdf",
+      "fileType": "application/pdf",
+      "ipfsHash": "bafybeifdo5df66tsnlo3d3pkmhwpikpt4rx423e4qgoz4hu5bxycrrushe",
+      "uploadedAt": "2026-09-14T11:00:38.149Z",
+      "scanResults": [],
+      "id": 10
+    },
+    {
+      "userId": "gupta.kashish0403@gmail.com",
+      "fileName": "DECLARATION.pdf",
+      "fileType": "application/pdf",
+      "ipfsHash": "bafybeidmhe6auxjp4awsm5dvnkpb2xabtiobtsab7cohevxdgnt6yrgyuq",
+      "uploadedAt": "2026-09-14T11:06:23.260Z",
+      "scanResults": [],
+      "id": 11
+    },
+    {
+      "userId": "gupta.kashish0403@gmail.com",
+      "fileName": "2.png",
+      "fileType": "image/png",
+      "ipfsHash": "bafybeidcfohm5fby7nextedk4eixahptq36wr2435c2qvslv7uvtjcxhda",
+      "uploadedAt": "2026-09-14T11:14:37.878Z",
+      "scanResults": [],
+      "id": 12
+    },
+    {
+      "userId": "gupta.kashish0403@gmail.com",
+      "fileName": "mnlVCqjRrWxYMWJ1cpAgkdOXKWPABzU7UaRoX-v5Go9nxBH4zu4gp6PSEccT21xITDJHfoZnVdvERj-kkbRg346lUAi3IEVDpXWSQZFg8QP8vMHJidjwsfS0j8Ghf8YeDqF_P6tCtusev-nKKoEhb3xbt5Ieb49T7f3PYT4cHenvpFGpYZk_SH1zeB41gQBq.jpg",
+      "fileType": "image/jpeg",
+      "ipfsHash": "bafkreigedze4dpgmqso3iybljemhb2ka4p536nca4qo57yips772bdc7ra",
+      "uploadedAt": "2026-09-14T11:16:31.985Z",
+      "scanResults": [],
+      "id": 13
+    },
+    {
+      "userId": "gupta.kashish0403@gmail.com",
+      "fileName": "Mona_Lisa.jpg",
+      "fileType": "image/jpeg",
+      "ipfsHash": "bafybeif4a6p3flxugy2oml6xpsysgx6bo2p6td6qp4aj4rlkjaltkpjf6u",
+      "uploadedAt": "2026-09-14T11:22:13.517Z",
+      "scanResults": [],
+      "id": 14
+    },
+    {
+      "userId": "gupta.kashish0403@gmail.com",
+      "fileName": "NOMu8dZ4bJMOstRUyTf1CiRWC3cVLSTVL2qSdikaoPK8r0HeBtI6r7Xf657KGljneyConE8rMSokVQKgbHMkT_ip7D8Iu4MVkPSPt_VE10_R-oj3O9TFHXNeSbVRVVOzWAOvN1cJ2gncSfoF8hAWCKkHHH9KtocG_sg0PBSt1RWCRjAAsD0HNY1tH81TfYee.jpg",
+      "fileType": "image/jpeg",
+      "ipfsHash": "bafkreifg25uz3zaaipjxhujvh2hgophvv6ask34qvrjygdxsa57pcun66a",
+      "uploadedAt": "2026-09-14T11:33:06.029Z",
+      "scanResults": [],
+      "id": 15
+    },
+    {
+      "userId": "gupta.kashish0403@gmail.com",
+      "fileName": "Screenshot 2026-09-14 173004.png",
+      "fileType": "image/png",
+      "ipfsHash": "bafybeih2qvipdfoanggtya7wxotjneqw3m2uufw2jt5rg7ivxtxnzgbvbe",
+      "uploadedAt": "2026-09-14T12:00:47.829Z",
+      "scanResults": [],
+      "id": 16
+    },
+    {
+      "userId": "gupta.kashish0403@gmail.com",
+      "fileName": "Untitled-1.txt",
+      "fileType": "text/plain",
+      "ipfsHash": "bafkreietj35qbuuuuzajdam4htdugdmevzqqfwebwu7gyihjzjovzofpbe",
+      "uploadedAt": "2026-09-14T12:02:11.240Z",
+      "scanResults": [],
+      "id": 17
     }
   ]
 }
