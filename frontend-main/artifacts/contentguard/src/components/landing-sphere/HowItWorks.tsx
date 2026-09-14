@@ -1,10 +1,11 @@
-import { Upload, ScanSearch } from "lucide-react";
+import { Upload, ScanSearch, FileText } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
 
 const steps = [
   { icon: Upload, num: 1, title: "Upload Content", desc: "Drop your PDFs, slides, images, or text files into ContentGuard.", btn: "Upload Now", href: "/signin" as const },
   { icon: ScanSearch, num: 2, title: "AI Scans the Web", desc: "Our engine crawls marketplaces, forums, and websites for matches.", btn: "Start Scan", href: "/signin" as const },
+  { icon: FileText, num: 3, title: "Get Your Report", desc: "Review matches, alerts, and evidence reports so you can take action.", btn: "View Report", href: "/signin" as const },
 ];
 
 const HowItWorks = () => {
