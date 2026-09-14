@@ -11,12 +11,80 @@
       "organization": "MIT CSAIL",
       "similarityThreshold": 0.88,
       "status": "active",
-      "detectionCount": 14,
+      "detectionCount": 8,
       "fileSize": null,
       "blockchainTxHash": null,
       "ipfsHash": null,
       "registeredAt": "2026-04-06T16:35:35.476Z",
-      "ownerId": "demo@contentguard.io"
+      "ownerId": "demo@contentguard.io",
+      "libraryMatches": {
+        "scannedAt": "2026-09-14T17:58:34.508Z",
+        "fingerprint": "9340be98f0b1470d3770ee531e1fc24ab7cecfeb06abad13ba7759cecfaa69d6",
+        "matches": [
+          {
+            "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6014374",
+            "similarity": 53,
+            "status": "medium",
+            "title": "A Systematic Review of End-to-End Deep Learning Models ...",
+            "snippet": "This systematic review synthesizes current research on end-to-end architectures applied to a broad range of NLP tasks, including language ..."
+          },
+          {
+            "url": "https://www.researchgate.net/publication/399429428_Systematic_Review_of_End-to-End_Deep_Learning_Models_for_NLP",
+            "similarity": 52,
+            "status": "medium",
+            "title": "Systematic Review of End-to-End Deep Learning Models ...",
+            "snippet": "This systematic review synthesizes current research on end-to-end architectures applied to a broad range of NLP tasks, including language ..."
+          },
+          {
+            "url": "https://www.scribd.com/document/844724620/A-Comprehensive-Review-of-Deep-Learning-Architectures-for-Task-Specific-Analysis",
+            "similarity": 47,
+            "status": "low",
+            "title": "Deep Learning Architectures Review | PDF",
+            "snippet": "A systematic review of deep learning architectures applied to NLP tasks"
+          },
+          {
+            "url": "https://www.mdpi.com/2078-2489/15/12/755",
+            "similarity": 46,
+            "status": "low",
+            "title": "A Comprehensive Review of Deep Learning: Architectures ...",
+            "snippet": "DL has evolved to include sophisticated neural networks capable of performing a variety of tasks, such as image recognition and natural language processing ( ..."
+          },
+          {
+            "url": "https://www.nature.com/articles/s41598-025-03979-5",
+            "similarity": 44,
+            "status": "low",
+            "title": "Use of deep learning-based NLP models for full-text data ...",
+            "snippet": "A systematic review of deep learning architectures applied to NLP tasks"
+          },
+          {
+            "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7025365/",
+            "similarity": 40,
+            "status": "low",
+            "title": "Deep learning in clinical natural language processing - PMC",
+            "snippet": "This article methodically reviews the literature on deep learning (DL) for natural language processing (NLP) in the clinical domain, providing ..."
+          },
+          {
+            "url": "https://slds-lmu.github.io/seminar_nlp_ss20/introduction-deep-learning-for-nlp.html",
+            "similarity": 40,
+            "status": "low",
+            "title": "Chapter 2 Introduction: Deep Learning for NLP",
+            "snippet": "A systematic review of deep learning architectures applied to NLP tasks"
+          },
+          {
+            "url": "https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/Transactions-APSIPA.pdf",
+            "similarity": 34,
+            "status": "low",
+            "title": "Three Classes of Deep Learning Architectures and Their ...",
+            "snippet": "DBMs have the potential of learning internal representations that become increasingly complex, highly desirable for solving object and speech recognition ..."
+          }
+        ],
+        "queriesUsed": [
+          "\"A systematic review of deep learning architectures applied to NLP tasks\"",
+          "Deep Learning for Natural Language Processing: A Deep Learning for Natural Language Processing: A Comprehensive Survey",
+          "Deep Learning for Natural Language Processing: A Comprehensive Survey sha256:a8f3c2d1e"
+        ],
+        "warnings": []
+      }
     },
     {
       "id": 2,
@@ -34,7 +102,75 @@
       "blockchainTxHash": null,
       "ipfsHash": null,
       "registeredAt": "2026-04-06T16:35:35.476Z",
-      "ownerId": "demo@contentguard.io"
+      "ownerId": "demo@contentguard.io",
+      "libraryMatches": {
+        "scannedAt": "2026-09-14T17:58:34.514Z",
+        "fingerprint": "0d6362bcd6887ef341c8fe7b705fe44785d6a5237a341649d926cda875775231",
+        "matches": [
+          {
+            "url": "https://developers.google.com/machine-learning/crash-course/neural-networks",
+            "similarity": 45,
+            "status": "low",
+            "title": "Neural networks | Machine Learning",
+            "snippet": "Video lecture series on neural network architectures and training"
+          },
+          {
+            "url": "https://www.youtube.com/watch?v=WUazOtlti0g",
+            "similarity": 43,
+            "status": "low",
+            "title": "Lecture 11: Training Neural Networks II",
+            "snippet": "Lecture 11 continues our discussion of nuts-and-bolts details of training neural networks. We discuss different learning rate schedules for ..."
+          },
+          {
+            "url": "https://www.youtube.com/watch?v=DKSZHN7jftI",
+            "similarity": 40,
+            "status": "low",
+            "title": "Tutorial 1- Introduction to Neural Network and Deep Learning",
+            "snippet": "Hello All, Welcome to the Deep Learning playlist. In this video we will learn about the basic architecture of a neural network."
+          },
+          {
+            "url": "https://www.youtube.com/playlist?list=PLhdVEDm7SZ-PdtzOkXWb6xyAPxFInnpx-",
+            "similarity": 39,
+            "status": "low",
+            "title": "Artificial Neural Networks",
+            "snippet": "This lecture series is to introduce the viewers to the basics of Artificial Neural Networks. The course structure is designed such that it is comfortable ..."
+          },
+          {
+            "url": "https://www.youtube.com/watch?v=kyQ0CRkYhy4",
+            "similarity": 37,
+            "status": "low",
+            "title": "1: Introduction to Neural Networks and Deep Learning",
+            "snippet": "MIT 15.773 Hands-On Deep Learning Spring 2024 Instructor: Rama Ramakrishnan View the complete course: https://ocw.mit.edu/co."
+          },
+          {
+            "url": "https://www.youtube.com/watch?v=MfIjxPh6Pys",
+            "similarity": 35,
+            "status": "low",
+            "title": "Lecture 10 - Introduction to Neural Networks | Stanford CS229",
+            "snippet": "Lecture 10 - Introduction to Neural Networks | Stanford CS229: Machine Learning (Autumn 2018). @stanfordonline4.1K likes314K views6 years ago"
+          },
+          {
+            "url": "https://www.khanacademy.org/computing/code-org/x06130d92:how-ai-works/x06130d92:what-is-ai/v/how-neural-networks-work",
+            "similarity": 35,
+            "status": "low",
+            "title": "How neural networks work (video)",
+            "snippet": "In this video, you'll learn how AI scientists built artificial neural networks that can gather information from various sources and synthesize them into an ..."
+          },
+          {
+            "url": "https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi",
+            "similarity": 29,
+            "status": "low",
+            "title": "Neural networks",
+            "snippet": "Learn the basics of neural networks and backpropagation, one of the most important algorithms for the modern world. ...more. Learn the basics of neural ..."
+          }
+        ],
+        "queriesUsed": [
+          "\"Video lecture series on neural network architectures and training\"",
+          "Advanced Machine Learning Course   Module 5: Neu Advanced Machine Learning Course   Module 5: Neural Networks",
+          "Advanced Machine Learning Course   Module 5: Neural Networks sha256:b9e4d3c2f"
+        ],
+        "warnings": []
+      }
     },
     {
       "id": 3,
@@ -47,12 +183,80 @@
       "organization": "Caltech Quantum Lab",
       "similarityThreshold": 0.9,
       "status": "active",
-      "detectionCount": 22,
+      "detectionCount": 8,
       "fileSize": null,
       "blockchainTxHash": null,
       "ipfsHash": null,
       "registeredAt": "2026-04-06T16:35:35.476Z",
-      "ownerId": "demo@contentguard.io"
+      "ownerId": "demo@contentguard.io",
+      "libraryMatches": {
+        "scannedAt": "2026-09-14T17:58:34.515Z",
+        "fingerprint": "5c05fb8484d8adc80179be47ad59a169cafb1a97e098ad4f2870a113f465e2d0",
+        "matches": [
+          {
+            "url": "https://www.maplesoft.com/mapleconference/2021/highlights.aspx",
+            "similarity": 96,
+            "status": "high",
+            "title": "Maple Conference 2021 Presentations",
+            "snippet": "Introduction to quantum gates, circuits, and algorithms"
+          },
+          {
+            "url": "https://www.grammarly.com/blog/writing-tips/how-to-write-an-introduction/?msockid=03fbd77e51ba6d1a3f87c0aa50086c26",
+            "similarity": 34,
+            "status": "low",
+            "title": "How to Write an Introduction, With Examples - Grammarly",
+            "snippet": "Learn how to write an introduction that hooks your readers, frames your topic, and states a clear thesis with these step …"
+          },
+          {
+            "url": "https://literarydevices.net/introduction/",
+            "similarity": 34,
+            "status": "low",
+            "title": "Introduction - Examples and Definition of Introduction",
+            "snippet": "Introduction definition with examples. Introduction is the first paragraph of an essay, giving background information about the essay's …"
+          },
+          {
+            "url": "https://writingcenter.unc.edu/tips-and-tools/introductions/",
+            "similarity": 33,
+            "status": "low",
+            "title": "Introductions – The Writing Center",
+            "snippet": "This handout will explain the functions of introductions, offer strategies for creating effective introductions, and provide some …"
+          },
+          {
+            "url": "https://en.wikipedia.org/wiki/Introduction_(writing)",
+            "similarity": 32,
+            "status": "low",
+            "title": "Introduction (writing) - Wikipedia",
+            "snippet": "A good introduction should identify your topic, provide essential context, and indicate your particular focus in the essay. It also needs …"
+          },
+          {
+            "url": "https://www.vedantu.com/english/how-to-write-an-introduction",
+            "similarity": 32,
+            "status": "low",
+            "title": "How To Write An Introduction Step by Step Guide - Vedantu",
+            "snippet": "What is an introduction in writing? An introduction is the opening paragraph of an essay, article, or paper that presents the topic and …"
+          },
+          {
+            "url": "https://www.merriam-webster.com/dictionary/introduction",
+            "similarity": 30,
+            "status": "low",
+            "title": "INTRODUCTION Definition & Meaning - Merriam-Webster",
+            "snippet": "The meaning of INTRODUCTION is something that introduces. How to use introduction in a sentence."
+          },
+          {
+            "url": "https://writingcenter.fas.harvard.edu/introductions",
+            "similarity": 29,
+            "status": "low",
+            "title": "Introductions - Harvard College Writing Center",
+            "snippet": "The introduction to an academic essay will generally present an analytical question or problem and then offer an answer to that …"
+          }
+        ],
+        "queriesUsed": [
+          "\"Introduction to quantum gates, circuits, and algorithms\"",
+          "Quantum Computing Fundamentals   Research Paper Quantum Computing Fundamentals   Research Paper",
+          "Quantum Computing Fundamentals   Research Paper sha256:c1f5e4d3b"
+        ],
+        "warnings": []
+      }
     },
     {
       "id": 4,
@@ -65,12 +269,80 @@
       "organization": "Ethereum Foundation",
       "similarityThreshold": 0.85,
       "status": "active",
-      "detectionCount": 5,
+      "detectionCount": 8,
       "fileSize": null,
       "blockchainTxHash": "0x7f9d8c3b2a1e4f5d6c7b8a9f0e1d2c3b4a5f6e7",
       "ipfsHash": "QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG",
       "registeredAt": "2026-04-06T16:35:35.476Z",
-      "ownerId": "demo@contentguard.io"
+      "ownerId": "demo@contentguard.io",
+      "libraryMatches": {
+        "scannedAt": "2026-09-14T17:58:34.516Z",
+        "fingerprint": "64dcc2a7a762ff2dac6caf69d9f9e69af5c79493571b1e3a5cbdc4bce9bab250",
+        "matches": [
+          {
+            "url": "https://link.springer.com/article/10.1007/s10270-026-01366-w",
+            "similarity": 43,
+            "status": "low",
+            "title": "Formalizing smart contract design patterns with DCR graphs",
+            "snippet": "Technical whitepaper on smart contract design patterns"
+          },
+          {
+            "url": "https://ethereum.org/developers/docs/smart-contracts/",
+            "similarity": 40,
+            "status": "low",
+            "title": "Introduction to smart contracts",
+            "snippet": "Blockchain Architecture for Decentralized Applications"
+          },
+          {
+            "url": "https://policyreview.info/glossary/smart-contracts",
+            "similarity": 39,
+            "status": "low",
+            "title": "Smart contracts",
+            "snippet": "Technical whitepaper on smart contract design patterns"
+          },
+          {
+            "url": "https://tenderbullet-whitepaper.osive.com/_downloads/db35760ac29154bd699b9bdf47ac578e/47.pdf",
+            "similarity": 37,
+            "status": "low",
+            "title": "Smart Contracts and the Application of Design Patterns",
+            "snippet": "this article proposes smart contract design patterns and their automated application, by means of code generation and the use of a domain- ..."
+          },
+          {
+            "url": "https://azure.microsoft.com/en-us/blog/introducing-enterprise-smart-contracts/",
+            "similarity": 36,
+            "status": "low",
+            "title": "Introducing Enterprise Smart Contracts | Microsoft Azure Blog",
+            "snippet": "You can learn more about our Enterprise Smart Contract framework in our technical whitepaper. Marley Gray. Principal Program ..."
+          },
+          {
+            "url": "https://lowellmilkeninstitute.law.ucla.edu/wp-content/uploads/2018/08/Smart-Contracts-Whitepaper.pdf",
+            "similarity": 33,
+            "status": "low",
+            "title": "SMART CONTRACTS: Is the Law Ready?",
+            "snippet": "This white paper explains that, under legislation of some jurisdictions, smart contracts are likely to be regarded as “electronic agents,” with enabling ..."
+          },
+          {
+            "url": "https://www.semanticscholar.org/paper/Design-Patterns-for-Smart-Contracts-in-the-Ethereum-W%C3%B6hrer-Zdun/a350391e5672191608e2449f9909462cade8a406",
+            "similarity": 29,
+            "status": "low",
+            "title": "[PDF] Design Patterns for Smart Contracts in the Ethereum ...",
+            "snippet": "A comprehensive survey on smart contract construction and execution: paradigms, tools, and systems · A Decision Model for Choosing Patterns in Blockchain-Based ..."
+          },
+          {
+            "url": "https://www.isda.org/a/6EKDE/smart-contracts-and-distributed-ledger-a-legal-perspective.pdf",
+            "similarity": 28,
+            "status": "low",
+            "title": "smart-contracts-and-distributed-ledger-a-legal-perspective. ...",
+            "snippet": "This paper takes a detailed look at smart contracts, the scope for their potential application to derivatives and ISDA documentation, and the ..."
+          }
+        ],
+        "queriesUsed": [
+          "\"Technical whitepaper on smart contract design patterns\"",
+          "Blockchain Architecture for Decentralized Applic Blockchain Architecture for Decentralized Applications",
+          "Blockchain Architecture for Decentralized Applications sha256:d2a6f5e4c"
+        ],
+        "warnings": []
+      }
     },
     {
       "id": 5,
@@ -83,12 +355,73 @@
       "organization": "Johns Hopkins Medicine",
       "similarityThreshold": 0.87,
       "status": "active",
-      "detectionCount": 31,
+      "detectionCount": 7,
       "fileSize": null,
       "blockchainTxHash": null,
       "ipfsHash": null,
       "registeredAt": "2026-04-06T16:35:35.476Z",
-      "ownerId": "demo@contentguard.io"
+      "ownerId": "demo@contentguard.io",
+      "libraryMatches": {
+        "scannedAt": "2026-09-14T17:58:34.517Z",
+        "fingerprint": "be4c5e46a5828e42f35f53ce2370038f9477fea43127ca5276296e393d55eee8",
+        "matches": [
+          {
+            "url": "https://writingcenter.unc.edu/tips-and-tools/semi-colons-colons-and-dashes/",
+            "similarity": 36,
+            "status": "low",
+            "title": "Semicolons, colons, and dashes – The Writing Center",
+            "snippet": "Using CNNs for tumor detection and medical image segmentation"
+          },
+          {
+            "url": "https://www.merriam-webster.com/dictionary/using",
+            "similarity": 35,
+            "status": "low",
+            "title": "USING Definition & Meaning - Merriam-Webster",
+            "snippet": "use, employ, utilize mean to put into service especially to attain an end. use implies availing oneself of something as a …"
+          },
+          {
+            "url": "https://www.merriam-webster.com/thesaurus/using",
+            "similarity": 35,
+            "status": "low",
+            "title": "USING Synonyms: 60 Similar and Opposite Words - Merriam-Webster",
+            "snippet": "Synonyms for USING: utilizing, applying, exploiting, employing, harnessing, operating, exercising, making use of; …"
+          },
+          {
+            "url": "https://grammarmax.com/using-or-useing/",
+            "similarity": 34,
+            "status": "low",
+            "title": "Using Or Useing: Common Spelling Mistakes Explained",
+            "snippet": "“Using” is the correct form, while “using” is not a real word. Knowing the right spelling is important, especially in writing …"
+          },
+          {
+            "url": "https://grammartribe.com/useing-or-using/",
+            "similarity": 33,
+            "status": "low",
+            "title": "Useing or Using – Which Spelling Is Correct? (Simple Guide)",
+            "snippet": "Useing or using? Learn the correct spelling, grammar rule, examples, and usage in British and American English clearly."
+          },
+          {
+            "url": "https://www.thefreedictionary.com/using",
+            "similarity": 29,
+            "status": "low",
+            "title": "Using - definition of using by The Free Dictionary",
+            "snippet": "The manner of using; usage: learned the proper use of power tools. 3. a. The permission, privilege, or benefit of using something: gave …"
+          },
+          {
+            "url": "https://dictionary.cambridge.org/dictionary/english/using",
+            "similarity": 29,
+            "status": "low",
+            "title": "USING | English meaning - Cambridge Dictionary",
+            "snippet": "Meaning of using in English using present participle of use (Definition of using from the Cambridge Advanced Learner's Dictionary & …"
+          }
+        ],
+        "queriesUsed": [
+          "\"Using CNNs for tumor detection and medical image segmentation\"",
+          "Computer Vision Applications in Medical Imaging Computer Vision Applications in Medical Imaging",
+          "Computer Vision Applications in Medical Imaging sha256:e3b7a6d5c"
+        ],
+        "warnings": []
+      }
     },
     {
       "id": 6,
@@ -101,12 +434,80 @@
       "organization": "Coursera / Princeton",
       "similarityThreshold": 0.8,
       "status": "monitoring",
-      "detectionCount": 17,
+      "detectionCount": 8,
       "fileSize": null,
       "blockchainTxHash": null,
       "ipfsHash": null,
       "registeredAt": "2026-04-06T16:35:35.476Z",
-      "ownerId": "demo@contentguard.io"
+      "ownerId": "demo@contentguard.io",
+      "libraryMatches": {
+        "scannedAt": "2026-09-14T17:58:34.518Z",
+        "fingerprint": "7b9d58e65cd8f698eb7aa272f7b783db1a759724bc9fa6eff6c151b8f07864f3",
+        "matches": [
+          {
+            "url": "https://missing.csail.mit.edu/2020/security/",
+            "similarity": 56,
+            "status": "medium",
+            "title": "Security and Cryptography",
+            "snippet": "Comprehensive cryptography course covering symmetric, asymmetric, and hash functions"
+          },
+          {
+            "url": "https://it.csusystem.edu/cryptography-encryption-and-hashing/",
+            "similarity": 50,
+            "status": "medium",
+            "title": "Cryptography: Encryption and Hashing - Information Technology",
+            "snippet": "Comprehensive cryptography course covering symmetric, asymmetric, and hash functions"
+          },
+          {
+            "url": "https://www.cryptomathic.com/blog/differences-between-hash-functions-symmetric-asymmetric-algorithms",
+            "similarity": 49,
+            "status": "low",
+            "title": "Hash Functions & Algorithms: What Are The Differences",
+            "snippet": "Comprehensive cryptography course covering symmetric, asymmetric, and hash functions"
+          },
+          {
+            "url": "https://www.eccouncil.org/train-certify/ec-council-certified-encryption-specialist-eces/",
+            "similarity": 48,
+            "status": "low",
+            "title": "EC-Council Certified Encryption Specialist | ECES",
+            "snippet": "Comprehensive cryptography course covering symmetric, asymmetric, and hash functions"
+          },
+          {
+            "url": "https://www.reddit.com/r/crypto/comments/mop94j/is_hash_funcion_an_asymmetrical_cryptography/",
+            "similarity": 44,
+            "status": "low",
+            "title": "Is hash funcion an asymmetrical cryptography? : r/crypto",
+            "snippet": "Cryptographic signatures provide non-repudiation and authentication. There are two types of encryption: asymmetric and symmetric. The other ..."
+          },
+          {
+            "url": "https://flashgenius.net/blog-article/cryptography-basics-encryption-hashing-and-digital-signatures-explained-for-giac-beginners",
+            "similarity": 39,
+            "status": "low",
+            "title": "Cryptography Basics: Encryption, Hashing, and Digital ...",
+            "snippet": "You'll learn how symmetric encryption is like sharing one house key, while asymmetric encryption is like using a public mailbox. You'll ..."
+          },
+          {
+            "url": "https://www.youtube.com/watch?v=C7vmouDOJYM",
+            "similarity": 38,
+            "status": "low",
+            "title": "Cryptography Full Course | Cryptography And Network Security",
+            "snippet": "Advanced Executive course will acquaint you with cryptography in detail. Symmetric Key Cryptography 17:14 Asymmetric Key Cryptography 24:43 ..."
+          },
+          {
+            "url": "https://www.cybrary.it/blog/cryptography-outline",
+            "similarity": 37,
+            "status": "low",
+            "title": "Cryptography Outline",
+            "snippet": "This Cryptography presentation discusses and demonstrates the key concepts of Cryptography from attacks, PKIs and Encryption in detail. symmetry & asymmetry."
+          }
+        ],
+        "queriesUsed": [
+          "\"Comprehensive cryptography course covering symmetric, asymmetric, and hash functions\"",
+          "Introduction to Cryptography   Online Course Introduction to Cryptography   Online Course",
+          "Introduction to Cryptography   Online Course sha256:f4c8b7a6e"
+        ],
+        "warnings": []
+      }
     },
     {
       "uuid": "9154bba2-fcf2-469b-9498-b5d3cf763276",
@@ -123,7 +524,7 @@
       "id": 7,
       "registeredAt": "2026-04-06T16:38:54.484Z",
       "libraryMatches": {
-        "scannedAt": "2026-04-06T16:41:18.088Z",
+        "scannedAt": "2026-09-14T17:58:34.519Z",
         "fingerprint": "60902ed0e34aadeaf9616c127e003e7ac68fc1ce8e4e96cc9f3f21091ef4aa6e",
         "matches": [],
         "queriesUsed": [
@@ -1511,6 +1912,123 @@
           "\"Taxonomy The species is sometimes treated as a subspecies of Charaxes candiope.[2][4][5] It is considered part\"",
           "Untitled 1 References Wikimedia Commons logo Wikimedia Commons has media related to Charaxes thomasiu",
           "Exotische Schmetterlinge 1: vi + 1–333."
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "uuid": "5758b0f5-d1ed-482b-9836-dc04e07549a8",
+      "title": "Screenshot 2026-09-14 at 11.12.53â¯PM.png",
+      "type": "image",
+      "description": "No extractable text for web detection (use text, PDF, DOCX, or clear image text).",
+      "extractedFullText": null,
+      "contentHash": "d352cb0667b0401b098b62d1cd5df41ff508c06ff61224e517e3bb1a3a681c76",
+      "perceptualHash": "1111110001111100110100100110110011100000100100000000000000000000",
+      "textFingerprint": null,
+      "fileSize": 1795373,
+      "author": "Unknown Author",
+      "organization": "ContentGuard Community",
+      "similarityThreshold": 0.85,
+      "status": "active",
+      "detectionCount": 0,
+      "ipfsHash": "bafybeifnqcbe6ttntpnvkeo324fjidsdcdxsqzqm3t7eh53ovrmeopuwly",
+      "ownerId": "demo@contentguard.io",
+      "registeredAt": "2026-09-14T17:50:25.818Z",
+      "id": 25,
+      "libraryMatches": {
+        "scannedAt": "2026-09-14T17:58:34.520Z",
+        "fingerprint": "95b4475b8ea2fbd2dc1688f11e810180c8082f192704a1e449eb6e64a55d866b",
+        "matches": [],
+        "queriesUsed": [
+          "reverse-image:https://gateway.pinata.cloud/ipfs/bafybeifnqcbe6ttntpnvkeo324fjidsdcdxsqzqm3t7eh53ovrmeopuwly"
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "uuid": "81e4becb-7469-4e6a-b1c8-09cb2b169b80",
+      "title": "The 2008 Dr Pepper SEC.txt",
+      "type": "document",
+      "description": "The 2008 Dr Pepper SEC Championship Game was played December 6, 2008, in the Georgia Dome in Atlanta to determine the 2008 football champion of the Southeastern Conference (SEC). The game featured the Florida Gators and the Alabama Crimson Tide. The Gators were classified as the home team. Before this game was played, the designated \"home team\", chosen on an alternating basis, was 10–6 (11–6 after Florida's win in this game) in SEC Championship Games. The SEC East is 10–6 in SEC Championship games (11–6 after Florida's win), with the Florida Gators accounting for six of the 10 victories.",
+      "extractedFullText": "The 2008 Dr Pepper SEC Championship Game was played December 6, 2008, in the Georgia Dome in Atlanta to determine the 2008 football champion of the Southeastern Conference (SEC). The game featured the Florida Gators and the Alabama Crimson Tide. The Gators were classified as the home team. Before this game was played, the designated \"home team\", chosen on an alternating basis, was 10–6 (11–6 after Florida's win in this game) in SEC Championship Games. The SEC East is 10–6 in SEC Championship games (11–6 after Florida's win), with the Florida Gators accounting for six of the 10 victories. (seven after this game) Before this game, Alabama had represented the SEC West five times in the conference championship game with a 2–3 record. The game was televised by CBS Sports and kicked off at 4:00 pm EST.",
+      "contentHash": "ac32fb357e791a590194b6c52796719f2f876178e16fae59e8d4433aadd8650e",
+      "perceptualHash": null,
+      "textFingerprint": null,
+      "fileSize": 821,
+      "author": "Unknown Author",
+      "organization": "ContentGuard Community",
+      "similarityThreshold": 0.85,
+      "status": "active",
+      "detectionCount": 8,
+      "ipfsHash": "bafkreifmgl5tk7tzdjmqdffwyutzm4m7f6dwc6hbn6xft2guim5k3wdfby",
+      "ownerId": "demo@contentguard.io",
+      "registeredAt": "2026-09-14T17:56:28.591Z",
+      "id": 26,
+      "libraryMatches": {
+        "scannedAt": "2026-09-14T17:58:34.521Z",
+        "fingerprint": "fd3205baa2fa70abda5c6a25d6fa746229e5c589a6d112166614d5a8301bac62",
+        "matches": [
+          {
+            "url": "https://en.wikipedia.org/wiki/2008_SEC_Championship_Game",
+            "similarity": 96,
+            "status": "high",
+            "title": "2008 SEC Championship Game",
+            "snippet": "The 2008 Dr Pepper SEC Championship Game was played December 6, 2008, in the Georgia Dome in Atlanta to determine the 2008 football champion of the Southeastern Conference (SEC)."
+          },
+          {
+            "url": "https://americanfootballdatabase.fandom.com/wiki/2008_SEC_Championship_Game",
+            "similarity": 72,
+            "status": "medium",
+            "title": "2008 SEC Championship Game | American Football Database",
+            "snippet": "The 2008 Dr Pepper SEC Championship Game was played on December 6, 2008 in the Georgia Dome in Atlanta, The game featured the Florida Gators and the Alabama ..."
+          },
+          {
+            "url": "https://gatorswire.usatoday.com/story/sports/college/gators/football/2020/05/09/watch-the-2008-sec-championship-game-between-florida-and-alabama/78898277007/",
+            "similarity": 60,
+            "status": "medium",
+            "title": "The 2008 SEC Championship Game against 'Bama was one ...",
+            "snippet": "The 2008 Dr Pepper SEC Championship Game was played December 6, 2008, in the Georgia Dome in Atlanta to determine the 2008 football champion of the Southeastern"
+          },
+          {
+            "url": "https://www.youtube.com/watch?v=m8UWuQoflJo",
+            "similarity": 58,
+            "status": "medium",
+            "title": "Florida Gators vs. Alabama Crimson Tide | Full Game Replay",
+            "snippet": "2008 SEC Championship Game: Florida 31, Alabama 20 Georgia Dome, Atlanta, GA. December 6, 2008 In the first ever meeting of the number one ..."
+          },
+          {
+            "url": "https://www.espn.com/college-football/game/_/gameId/283410057/alabama-florida",
+            "similarity": 54,
+            "status": "medium",
+            "title": "Florida 31-20 Alabama (Dec 6, 2008) Final Score",
+            "snippet": "The SEC East is 10–6 in SEC Championship games (11–6 after Florida's win), with the Florida Gators accounting for six of the 10 victories."
+          },
+          {
+            "url": "https://rolltide.com/news/2008/12/6/alabama_falls_to_florida_in_sec_championship_game_31_20",
+            "similarity": 54,
+            "status": "medium",
+            "title": "Alabama Falls to Florida in SEC Championship Game, 31-20",
+            "snippet": "The 2008 Dr Pepper SEC Championship Game was played December 6, 2008, in the Georgia Dome in Atlanta to determine the 2008 football champion of the Southeastern"
+          },
+          {
+            "url": "https://www.sports-reference.com/cfb/boxscores/2008-12-06-alabama.html",
+            "similarity": 54,
+            "status": "medium",
+            "title": "Florida vs Alabama Box Score, December 6, 2008",
+            "snippet": "Florida vs Alabama Box Score, December 6, 2008. Southeastern Conference Championship Saturday Dec 6, 2008 SEC Championship (Atlanta, GA) ..."
+          },
+          {
+            "url": "https://www.youtube.com/watch?v=iPeRRc6OdxI",
+            "similarity": 50,
+            "status": "medium",
+            "title": "2008 SEC Championship Game - #1 Alabama vs. #2 Florida ...",
+            "snippet": "12/06/2008. Georgia Dome (Atlanta, GA). The 17th annual SEC Championship Game. The #1 Alabama Crimson Tide (12-0) vs. the #2 Florida Gators ..."
+          }
+        ],
+        "queriesUsed": [
+          "\"The 2008 Dr Pepper SEC Championship Game was played December 6, 2008, in the Georgia Dome in Atlanta to determ\"",
+          "The 2008 Dr Pepper SEC The game featured the Florida Gators and the Alabama Crimson Tide.",
+          "The Gators were classified as the home team."
         ],
         "warnings": []
       }
@@ -3147,6 +3665,24 @@
       "uploadedAt": "2026-09-14T12:02:11.240Z",
       "scanResults": [],
       "id": 17
+    },
+    {
+      "userId": "demo@contentguard.io",
+      "fileName": "Screenshot 2026-09-14 at 11.12.53â¯PM.png",
+      "fileType": "image/png",
+      "ipfsHash": "bafybeifnqcbe6ttntpnvkeo324fjidsdcdxsqzqm3t7eh53ovrmeopuwly",
+      "uploadedAt": "2026-09-14T17:50:25.816Z",
+      "scanResults": [],
+      "id": 18
+    },
+    {
+      "userId": "demo@contentguard.io",
+      "fileName": "The 2008 Dr Pepper SEC.txt",
+      "fileType": "text/plain",
+      "ipfsHash": "bafkreifmgl5tk7tzdjmqdffwyutzm4m7f6dwc6hbn6xft2guim5k3wdfby",
+      "uploadedAt": "2026-09-14T17:56:28.589Z",
+      "scanResults": [],
+      "id": 19
     }
   ]
 }

@@ -22,7 +22,7 @@ const HowItWorks = () => {
         </motion.h2>
         <p className="text-muted-foreground mb-16">Three simple steps to protect your content</p>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-8 w-full">
           {steps.map((s, i) => (
             <motion.div
               key={i}
@@ -30,7 +30,7 @@ const HowItWorks = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.15 }}
-              className="flex flex-col items-center group"
+              className="flex flex-col items-center group w-full min-w-0 md:flex-1 md:basis-0"
             >
               <div className="relative mb-6">
                 <div className="w-16 h-16 rounded-2xl border border-border bg-card flex items-center justify-center group-hover:border-primary/40 group-hover:shadow-[0_0_20px_hsl(175_72%_46%_/_0.15)] transition-all duration-300">
